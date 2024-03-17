@@ -1,4 +1,4 @@
-#TVnymph:main.py
+#TVnymph/test_neokey: Test IR control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
 from CelIRcom.Base import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Tx import IRTx_pulseio as IRTx
