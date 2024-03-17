@@ -2,6 +2,7 @@
 #-------------------------------------------------------------------------------
 from CelIRcom.Base import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Tx import IRTx_pulseio as IRTx
+from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from array import array
 import board
@@ -32,6 +33,7 @@ tx_led.io_configure(IRProtocols.NEC)
 #Connect to NeoKey object:
 i2c_bus = board.I2C() #use default I2C bus
 neokey = NeoKey1x4(i2c_bus, addr=0x30)
+btn_voldn = EasyNeoKey(neokey, KEYPAD_VOLDN_IDX)
 
 
 #=Helper tools
@@ -39,6 +41,7 @@ neokey = NeoKey1x4(i2c_bus, addr=0x30)
 def now():
     return time.time() * 1000000 #in microseconsd
 
+#Scheduler: EasyTX()
 class Mediator_IRTX: #State machine controlling when we can send IR messages
     STATE_READY = 0
     STATE_WATINGMINDELAY = 1
@@ -97,35 +100,28 @@ while True:
         color = KEYPAD_COLORS[ikey] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[ikey] = color          
 
-    is_pressed = neokey[KEYPAD_VOLDN_IDX]
-    if not is_pressed:
-        state_last = 0
-    elif tx_mediator.is_ready():
-        initial_keypress = (0 == state_last)
-        initial_keypress = True #Overwrite
-
-        if initial_keypress:
-            (pulses, pulses_us) = tx.send(MSG_VOLDN)
-            tx_mediator.signal_message_sent()
-            if NEC_MSG_TWAIT > 0:
-                time.sleep(NEC_MSG_TWAIT)
-            trigger_led = False
-            #print("FIRST")
-        else:
-            (pulses, pulses_us) = tx.send(MSG_RPT)
-            tx_mediator.signal_message_sent() #Before sleep
-            time.sleep(NEC_RPT_TWAIT)
-            trigger_led = True #Could theoretically send pulse to LED and meet timing
-            #print("RPT")
-
+    sig = btn_voldn.signals_scan() #Once per loop
+    if sig == btn_voldn.SIG.PRESS:
+        (pulses, pulses_us) = tx.send(MSG_VOLDN)
+        tx_mediator.signal_message_sent()
+        if NEC_MSG_TWAIT > 0:
+            time.sleep(NEC_MSG_TWAIT)
         trigger_led = False
-        if trigger_led:
-            #WARN: Sending pulse on LED takes time.
-            #Likely keeps IR-MSG_RPT from working as intended:
-            tx_led.pulse.send(pulses_us) #Mirror onto LED
-        #print(pulses)
-        #time.sleep(.01) #about 100ms between codes
-        #print(pulses_us)
-        state_last = 1
+        #print("FIRST") #Likely breaks timing for repeats
+    elif sig == btn_voldn.SIG.HOLD:
+        (pulses, pulses_us) = tx.send(MSG_RPT)
+        tx_mediator.signal_message_sent() #Before sleep
+        time.sleep(NEC_RPT_TWAIT)
+        trigger_led = True #Could theoretically send pulse to LED and meet timing
+        print("RPT") #Likely breaks timing for repeats
+
+    trigger_led = False
+    if trigger_led:
+        #WARN: Sending pulse on LED takes time.
+        #Likely keeps IR-MSG_RPT from working as intended:
+        tx_led.pulse.send(pulses_us) #Mirror onto LED
+    #print(pulses)
+    #time.sleep(.01) #about 100ms between codes
+    #print(pulses_us)
 
 #Last line
