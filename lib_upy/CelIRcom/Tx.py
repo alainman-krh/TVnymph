@@ -1,6 +1,7 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
 from .Base import IRProtocols, array_ticks
+from adafruit_ticks import ticks_ms
 from array import array
 import pulseio
 
@@ -75,24 +76,51 @@ class PulseTrain: #Default algorithm: 1 bit -> 2 pulses
 
 #=IRTx
 #===============================================================================
-class IRTx_pulseio:
-    def __init__(self, pin):
-        self.pin = pin
+class AbstractIRTx:
+    def __init__(self):
+        self.tx_start = ticks_ms() #ms
+        self.tx_complete = ticks_ms() #ms
         self.pulsebuilder = PulseTrain()
-        self.pulse = None #Must .io_configure()         
 
-    def io_configure(self, prot):
-        self.pulse=pulseio.PulseOut(self.pin, frequency=prot.f, duty_cycle=prot.duty_int)
-
+    #Implement interface::
+    #---------------------------------------------------------------------------
     def io_refreshcfg(self, prot):
         pass
+    #def pulsetrain_build(self, msg):
+    #def _pulsetrain_send_immediate(self, ptrain):
+    #---------------------------------------------------------------------------
 
-    def send(self, msg):
+    def pulsetrain_send(self, ptrain):
+        self.tx_start = ticks_ms()
+        self.tx_complete = self.tx_start
+        self._pulsetrain_send_immediate(ptrain)
+        self.tx_complete = ticks_ms()
+        return ptrain
+
+    def msg_send(self, msg):
+        #NOTE: ptrain can be any format most practical for a given implementation
+        ptrain = self.pulsetrain_build(msg)
         self.io_refreshcfg(msg.prot) #TODO: track last protocol to avoid reconfig???
-        pulses = self.pulsebuilder.build(msg) #Only support 32-bit code for now
+        return self.pulsetrain_send(ptrain)
+
+#IRTx_pulseio
+#-------------------------------------------------------------------------------
+class IRTx_pulseio(AbstractIRTx):
+    def __init__(self, pin, prot):
+        super().__init__()
+        self.io_configure(pin, prot)
+
+    def io_configure(self, pin, prot):
+        self.pulse = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int)
+
+    def pulsetrain_build(self, msg):
+        #Returns a pulsetrain ready to be transitted
+        pulses = self.pulsebuilder.build(msg)
         Tunit = msg.prot.Tunit #in us
         pulses_us = array_pulses(abs(p)*Tunit for p in pulses)
+        return pulses_us
+
+    def _pulsetrain_send_immediate(self, pulses_us):
         self.pulse.send(pulses_us)
-        return (pulses, pulses_us)
 
 #Last line

@@ -48,7 +48,7 @@ class EasyButton: #State machine (FSM) controlling interations with buttons
             return BtnSig.RELEASE
         return BtnSig.NONE
 
-    def signals_scan(self): #Also updates state (Typically: Only run once per loop)
+    def signals_detect(self): #Also updates state (Typically: Only run once per loop)
         stateraw = self._scan_raw()
         if BtnState.DOWN == self.state:
             sig = self._scan_down(stateraw)
@@ -60,10 +60,12 @@ class EasyButton: #State machine (FSM) controlling interations with buttons
 #=EasyNeoKey
 #===============================================================================
 class EasyNeoKey(EasyButton):
-    def __init__(self, nkey, idx):
+    def __init__(self, obj, idx):
         super().__init__()
-        self.nkey = nkey
+        self.obj = obj
         self.idx = idx
 
     def _scan_raw(self):
-        return BtnState.DOWN if self.nkey[self.idx] else BtnState.UP
+        return BtnState.DOWN if self.obj[self.idx] else BtnState.UP
+
+#Last line
