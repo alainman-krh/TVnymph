@@ -1,6 +1,6 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
-from .Base import IRProtocols, array_ticks
+from .Protocols import IRProtocols, array_ticks
 from adafruit_ticks import ticks_ms
 from array import array
 import pulseio

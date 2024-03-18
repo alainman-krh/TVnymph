@@ -1,10 +1,11 @@
 #TVnymph/test_neokey: Test IR control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
-from CelIRcom.Base import IRProtocols, IRMsg32, IRMSG32_NECRPT
+from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Tx import IRTx_pulseio as IRTx
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4
+from adafruit_ticks import ticks_ms
 from array import array
 import board
 
@@ -38,43 +39,43 @@ btn_voldn = EasyNeoKey(neokey, idx=0)
 
 #=Inter-message timing
 #===============================================================================
-PULSEIO_TSLEEP = 60 #ms: (on RP2040) Seems like pulseio lib sleeps after sending a message.
-NEC_TMSG = 68 #ms: timespan for sending regular NEC messages
-#Time to wait after sending messages:
-TWAIT_MSG = IRPROT.msginterval_ms - (PULSEIO_TSLEEP+NEC_TMSG)
-if TWAIT_MSG < 0:
-    texcess = abs(TWAIT_MSG)
-    print(f"WARNING: SW limitations will likely break timing of repeat messages:")
-    print(f"         pulseio induces excess delay of {texcess}ms.")
+TPROC_KEYPAD = 60 #ms: Adjust for keypad processing between MSG_RPT
+TADJ_RPT = TPROC_KEYPAD #ms: Adjust for loop delays between MSG_RPT
+
+print("TVnymph: initialized")
+print("\nHI0")
 
 
 #=Main loop
 #===============================================================================
 while True:
-    color = 0; pulsetrain = None
     for ikey in range(4):
         is_pressed = neokey[ikey]
         color = KEYPAD_COLORS[ikey] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[ikey] = color          
 
     sig = btn_voldn.signals_detect() #Once per loop
+    pulsetrain = None
     if sig == btn_voldn.SIG.PRESS:
         pulsetrain = easytx.msg_send(MSG_VOLDN)
-        trigger_led = False
+        #Neokey takes about 12ms/key to process.
+        #(Extra 12ms*4keys breaks timing for 1st NEC "repeat" message)
+        pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT) #Immediately send 1st repeat to maintin timing
+        t0 = ticks_ms()
         #print("FIRST") #Likely breaks timing for repeats
     elif sig == btn_voldn.SIG.HOLD:
-        pulsetrain = easytx.msg_send(MSG_RPT)
+        pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT)
         trigger_led = True #Could theoretically send pulse to LED and meet timing
         #print("RPT") #Likely breaks timing for repeats
 
     trigger_led = False
     if trigger_led:
         #WARN: Sending pulse on LED takes time.
-        #Likely keeps IR-MSG_RPT from working as intended:
+        #(Likely will keep IR:MSG_RPT from working as intended)
         tx_led.pulsetrain_send(pulsetrain) #Mirror onto LED
 
-    pulsetrain = None #Don't show
-    if pulsetrain != None:
+    debug = False #don't show
+    if debug and (pulsetrain != None):
         print(pulsetrain)
 
 #Last line
