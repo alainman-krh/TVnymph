@@ -5,7 +5,6 @@ from CelIRcom.Tx import IRTx_pulseio as IRTx
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4
-from adafruit_ticks import ticks_ms
 from array import array
 import board
 
@@ -42,17 +41,16 @@ btn_voldn = EasyNeoKey(neokey, idx=0)
 TPROC_KEYPAD = 60 #ms: Adjust for keypad processing between MSG_RPT
 TADJ_RPT = TPROC_KEYPAD #ms: Adjust for loop delays between MSG_RPT
 
-print("TVnymph: initialized")
-print("\nHI0")
-
 
 #=Main loop
 #===============================================================================
+print("TVnymph: initialized (test_neokey)")
+print("\nHI0")
 while True:
-    for ikey in range(4):
-        is_pressed = neokey[ikey]
-        color = KEYPAD_COLORS[ikey] if is_pressed else NEOPIXEL_OFF
-        neokey.pixels[ikey] = color          
+    for i in range(4): #Process all keys
+        is_pressed = neokey[i]
+        color = KEYPAD_COLORS[i] if is_pressed else NEOPIXEL_OFF
+        neokey.pixels[i] = color
 
     sig = btn_voldn.signals_detect() #Once per loop
     pulsetrain = None
@@ -61,7 +59,6 @@ while True:
         #Neokey takes about 12ms/key to process.
         #(Extra 12ms*4keys breaks timing for 1st NEC "repeat" message)
         pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT) #Immediately send 1st repeat to maintin timing
-        t0 = ticks_ms()
         #print("FIRST") #Likely breaks timing for repeats
     elif sig == btn_voldn.SIG.HOLD:
         pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT)
