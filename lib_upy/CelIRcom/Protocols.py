@@ -45,5 +45,11 @@ class IRProtocols:
         Nbits=0, f=38000, duty=1/4, msginterval_ms=110 #No bits to transmit here
         #TMSG=12ms: Pulse train lasts 21*Tunit
     )
+    #SAMSUNG: Basically NEC, but with shorter preamble.
+    SAMSUNG = IRProtocolDef_STD1(Tunit=2250//4, #Regular NEC messages
+        pre=(8, -8), post=(1,), _0=(1, -1), _1=(1, -3),
+        Nbits=32, f=38000, duty=1/2, msginterval_ms=110
+        #Not sure if Samsung respects complementary/redundant pattern
+    )
 
 #Last line
