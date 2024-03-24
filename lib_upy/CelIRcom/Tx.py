@@ -22,7 +22,7 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buff
 #=Helper functions
 #===============================================================================
 def array_pulses(a): #Build array of pulse lengths (us)
-    return array('H', a)
+    return array('H', a) #Unsigned short: at least 2 bytes
 
 
 #=PulseTrain
@@ -34,12 +34,13 @@ class PulseTrain: #Default algorithm: 1 bit -> 2 pulses
         self.buf_reset()
 
     def buf_reset(self):
-        self.buf[0] = 0
+        self.buf[0] = 0 #"Last polarity" (first) assumed positive
         self.N = 0 #Assumes element 0 is valid
         return (self.buf, self.N)
 
     @staticmethod #Provide all arguments on call stack. called often. Probably more efficient.
-    def buf_add(buf, N, parr): #Simplification: assumes 2 pulses
+    def buf_add(buf, N, parr):
+        #Add pulse pattern in parr to buf (merge with current pulse if polarity matches)
         for pulse in parr:
             polL = buf[N] >= 0 #Last polarity
             polP = pulse > 0
@@ -111,7 +112,8 @@ class IRTx_pulseio(AbstractIRTx):
         self.io_configure(pin, prot)
 
     def io_configure(self, pin, prot):
-        self.pulse = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int)
+        #pulseio transmitter:
+        self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
 
     def pulsetrain_build(self, msg):
         #Returns a pulsetrain ready to be transitted
@@ -121,6 +123,6 @@ class IRTx_pulseio(AbstractIRTx):
         return pulses_us
 
     def _pulsetrain_send_immediate(self, pulses_us):
-        self.pulse.send(pulses_us)
+        self.piotx.send(pulses_us)
 
 #Last line

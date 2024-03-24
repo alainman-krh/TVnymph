@@ -1,3 +1,7 @@
+<!-- Reference-style links to make tables & lists more readable -->
+[CktPy]: <https://docs.circuitpython.org/en/latest>
+[RP2040]: <https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html>
+
 ## TVnymph
 <!----------------------------------------------------------------------------->
 Quickly reconfigures TV/AV setup for different purposes (satellite TV, net radio, etc).
@@ -15,11 +19,17 @@ Demos can be found here in the [`demos/` subdirectory](demos/):
 <!----------------------------------------------------------------------------->
 1. [Install](docs/Install.md)
 
+
+# TODO
+<!----------------------------------------------------------------------------->
+- Break out `CelIRcom` and `EasyActuation` into their own repositories.
+- Figure out how to link them in as submodules.
+
 # Compatibility
 <!----------------------------------------------------------------------------->
 Circuit python platforms supporting the [`pulseio` library](https://docs.circuitpython.org/en/latest/shared-bindings/pulseio/index.html)
 (Expand section labelled ***"Available on these boards"***).
-- Tested for CircuitPython 8.2.9 (CktPy-8.2.9) only.
 
-Tested HW+SW combinations:
-- RP2040 + CktPy-8.2.9
+Tested HW+SW platforms/combinations:
+- [RP2040] + [CktPy]-8.2.9
+
