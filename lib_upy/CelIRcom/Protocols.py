@@ -3,13 +3,24 @@
 from array import array
 #import pwmio
 
-#NOTE: Trying to keep identifiers/variable names shorter. Apparently it matters for space/speed?.
+#NOTE:
+#- Timing values of signal pulses are in ns - whereas everything else is in ms
+#  to minimize computational/space demands.
+#- Trying to keep identifiers/variable names shorter. Apparently it matters for space/speed?.
+
+
+#=Constants
+#===============================================================================
+IRMSG_TMAX_MS = 100 #Maximum message length in ms.
 
 
 #=Helper functions
 #===============================================================================
 def array_ticks(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 Tunit)
     return array('b', a) #Store as byte arrays
+
+def array_pulses(a): #Build array of pulse lengths (us)
+    return array('H', a) #Unsigned short: at least 2 bytes
 
 
 #=Protocol definitions

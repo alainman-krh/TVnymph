@@ -1,8 +1,7 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
-from .Protocols import IRProtocols, array_ticks
+from .Protocols import IRProtocols, array_ticks, array_pulses
 from adafruit_ticks import ticks_ms
-from array import array
 import pulseio
 
 
@@ -17,12 +16,6 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buff
 #NOTE: Here: an individual "pulse" is defined as a continous series of either
 #"marks" or "spaces" - as opposed to a signal that goes low-high-low (definition
 #used in the signal analysis formalism).
-
-
-#=Helper functions
-#===============================================================================
-def array_pulses(a): #Build array of pulse lengths (us)
-    return array('H', a) #Unsigned short: at least 2 bytes
 
 
 #=PulseTrain
