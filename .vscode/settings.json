@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "**/__pycache__/": true,
+        "**/.ipynb_checkpoints": true
+    },
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}\\lib_upy",
+    ]
+}
