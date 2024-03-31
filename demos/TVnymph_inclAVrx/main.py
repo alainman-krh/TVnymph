@@ -10,6 +10,13 @@ from time import sleep
 import board
 
 
+#=Platform/build-dependent config
+#===============================================================================
+tx_pin = board.D12 #Metro RP2040
+#txled_pin = board.LED
+i2c_bus = board.I2C() #use default I2C bus (NeoKey)
+
+
 #=Main config: Messages
 #===============================================================================
 #Mesages we will be using:
@@ -138,11 +145,10 @@ KEYPAD_COLORS = ( #NeoPixel colors assoicated with each NeoKey:
 #=IO config
 #===============================================================================
 #Connect to IR diode & on-board LED:
-tx = IRTx(board.D12, IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
+tx = IRTx(tx_pin, IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
 easytx = EasyTx(tx)
 
 #Connect to NeoKey object:
-i2c_bus = board.I2C() #use default I2C bus
 neokey = NeoKey1x4(i2c_bus, addr=0x30)
 easykey = tuple(EasyNeoKey(neokey, idx=i) for i in range(4))
 

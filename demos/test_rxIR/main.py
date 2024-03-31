@@ -7,11 +7,16 @@ import board
 #import uctypes
 
 
+#=Platform/build-dependent config
+#===============================================================================
+rx_pin = board.GP16 #RP2040 nano
+
+
 #=Main config
 #===============================================================================
-#Mesages we will be using:
-IRPROT = IRProtocols.NEC
-rx = IRRx(board.GP16, IRPROT)
+rx = IRRx(rx_pin)
+#Mesages we will be detecting:
+rx.protocols_setactive([IRProtocols.NEC, IRProtocols.NECRPT])
 
 
 #=Main loop

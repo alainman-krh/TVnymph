@@ -13,7 +13,7 @@ import pulseio
 #IRRx
 #-------------------------------------------------------------------------------
 class IRRx:
-    def __init__(self, pin, prot, doneT_ms=10, msgmax_ms=IRMSG_TMAX_MS, autoclear=True):
+    def __init__(self, pin, doneT_ms=10, msgmax_ms=IRMSG_TMAX_MS, autoclear=True):
         #doneT_ms: period of inactivity used to detect end of message transmission.
         #autoclear: auto-clear recieve queue before we ask to read a new message
         #super().__init__()
@@ -23,12 +23,15 @@ class IRRx:
         self.msgmax_ms = msgmax_ms
         self.autoclear = autoclear
         self.read_last = ticks_ms()
-        self.io_configure(pin, prot, maxlen=120)
+        self.io_configure(pin, maxlen=120)
         self.reset()
 
-    def io_configure(self, pin, prot, maxlen):
+    def io_configure(self, pin, maxlen):
         #pulseio receiver:
         self.piorx = pulseio.PulseIn(pin, maxlen=maxlen, idle_state=True)
+
+    def protocols_setactive(self, prot_list):
+        return #Placeholder
 
     def reset(self): #reset recieve queue, ignoring any signal before
         self.piorx.clear()
