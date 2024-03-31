@@ -4,13 +4,15 @@ from .Protocols import IRProtocols, array_ticks, array_pulses, IRMSG_TMAX_MS
 from adafruit_ticks import ticks_ms
 import pulseio
 
+#TODO: Request that pulseio register start time of first pulse somehow.
+
 
 #=IRRx
 #===============================================================================
 
-#IRRx_pulseio
+#IRRx
 #-------------------------------------------------------------------------------
-class IRRx_pulseio:
+class IRRx:
     def __init__(self, pin, prot, doneT_ms=10, msgmax_ms=IRMSG_TMAX_MS, autoclear=True):
         #doneT_ms: period of inactivity used to detect end of message transmission.
         #autoclear: auto-clear recieve queue before we ask to read a new message
@@ -36,7 +38,6 @@ class IRRx_pulseio:
 
     def pulses_getnonblock(self): #Get raw message (if exists) using non-blocking method
         buf = self.piorx
-        #msg_snapshot = self.piorx[:] #Doesn't support slices... Need other way
         N = len(buf)
         if N < 2: #No signal yet
             return None
