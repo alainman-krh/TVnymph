@@ -3,11 +3,6 @@
 from array import array
 #import pwmio
 
-#NOTE:
-#- Timing values of signal pulses are in ns - whereas everything else is in ms
-#  to minimize computational/space demands.
-#- Trying to keep identifiers/variable names shorter. Apparently it matters for space/speed?.
-
 
 #=Constants
 #===============================================================================
