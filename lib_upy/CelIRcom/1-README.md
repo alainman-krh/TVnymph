@@ -2,7 +2,7 @@
 
 # Naming conventions
 <!----------------------------------------------------------------------------->
-- Start bits/stop bits: AKA preamble/postamble.
+- Preamble/postamble: AKA start bits/stop bits (though not really bits).
 - Mark/space (typ. High/Low): Sometimes "mark" is called "pulse.
   - Note: some recievers have inverted logic where "mark" is low, and "space"
     is high.
@@ -44,6 +44,10 @@ Good overview of encoding types:
   transmitted.
 - Pulse Length Encoding (PLE) - AKA "Pulse Encoding": "pulse" width depends
   on symbol being transmitted, and trailing "space" is of fixed width.
+- Manchester Encoding (ME) - AKA "Bi-Phase Encoding": Both symbols
+  (representing either a 0 or 1 bit) have fixed widths, but with opposite
+  polarities. For example: A "mark-space" pattern represents a 0 bit, whereas
+  a "space-mark" pattern represents a 1 bit (or vice-versa).
 
 # TODO
 <!----------------------------------------------------------------------------->
