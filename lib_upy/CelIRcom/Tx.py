@@ -13,9 +13,6 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buff
     #- NEC: 32*2
     MSG = 32*2 #Message bits (set to largest from whichever protocol will have the most).
     PACKET = PRE+POST+MSG
-#NOTE: Here: an individual "pulse" is defined as a continous series of either
-#"marks" or "spaces" - as opposed to a signal that goes low-high-low (definition
-#used in the signal analysis formalism).
 
 
 #=PulseTrain
