@@ -9,16 +9,16 @@ import pulseio
 #===============================================================================
 class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buffers)
     PRE = 2; POST = 2 #Pre/Postamble
-    #List supported protocols (typ: #of bits * 2 pulses/bit)
+    #List supported protocols (typ: #of bits * 2 pulses/symbol)
     #- NEC: 32*2
     MSG = 32*2 #Message bits (set to largest from whichever protocol will have the most).
     PACKET = PRE+POST+MSG
 
 
-#=PulseTrain
+#=PulseTrain: stores pulses in signed ticks
 #===============================================================================
-class PulseTrain: #Default algorithm: 1 bit -> 2 pulses
-    #Builds up the signal from the provided message as a pulse train
+class PulseTrain: #Default algorithm: 1 symbol -> 2 pulses
+    """Builds up the signal from the provided message as a pulse train"""
     def __init__(self):
         self.buf = array_ticks((0,)*PulseCount_Max.PACKET)
         self.buf_reset()
@@ -49,7 +49,7 @@ class PulseTrain: #Default algorithm: 1 bit -> 2 pulses
 
         #Add message bits themselves:
         pat_bit = msg.prot.pat_bit #array for both bits 0 & 1
-        Nbits = msg.prot.Nbits; posN = Nbits-1 #Next bit position
+        Nbits = msg.prot.Nbits; posN = Nbits-1 #Next bit position (MSB to LSB)
         bits = msg.bits #message/code bits
         while posN >= 0:
             bit_i = (bits >> posN) & 0x1
@@ -109,7 +109,7 @@ class IRTx_pulseio(AbstractIRTx):
         #Returns a pulsetrain ready to be transitted
         pulses = self.pulsebuilder.build(msg)
         Tunit = msg.prot.Tunit #in us
-        pulses_us = array_pulses(abs(p)*Tunit for p in pulses)
+        pulses_us = array_pulses(abs(p)*Tunit for p in pulses) #TODO: NOALLOC
         return pulses_us
 
     def _pulsetrain_send_immediate(self, pulses_us):
