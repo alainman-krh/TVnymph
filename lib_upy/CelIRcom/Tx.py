@@ -1,18 +1,8 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
-from .Protocols import IRProtocols, array_ticks, array_pulses
+from .Protocols import PulseCount_Max, IRProtocols, array_ticks, array_pulses
 from adafruit_ticks import ticks_ms
 import pulseio
-
-
-#=PulseCount_Max
-#===============================================================================
-class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buffers)
-    PRE = 2; POST = 2 #Pre/Postamble
-    #List supported protocols (typ: #of bits * 2 pulses/symbol)
-    #- NEC: 32*2
-    MSG = 32*2 #Message bits (set to largest from whichever protocol will have the most).
-    PACKET = PRE+POST+MSG
 
 
 #=PulseTrain: stores pulses in signed ticks

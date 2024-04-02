@@ -1,12 +1,20 @@
 #CelIRcom/Protocols.py
 #-------------------------------------------------------------------------------
+from micropython import const
 from array import array
 #import pwmio
 
 
 #=Constants
 #===============================================================================
-IRMSG_TMAX_MS = 100 #Maximum message length in ms.
+IRMSG_TMAX_MS = const(100) #Maximum message length in ms.
+
+class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buffers)
+    PRE = 2; POST = 2 #Pre/Postamble
+    #List supported protocols (typ: #of bits * 2 pulses/symbol)
+    #- NEC: 32*2
+    MSG = 32*2 #Message bits (set to largest from whichever protocol will have the most).
+    PACKET = PRE+POST+MSG
 
 
 #=Helper functions
