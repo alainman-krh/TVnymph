@@ -19,12 +19,10 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buff
 
 #=Helper functions
 #===============================================================================
-#Rename: ptrain_ticks()
-def array_ticks(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 Tunit)
+def ptrain_ticks(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickT)
     return array('b', a) #Store as byte arrays
 
-#Rename: ptrain_pulseio()
-def array_pulses(a): #Build array of pulse lengths (us)
+def ptrain_pulseio(a): #Build array of pulse lengths (us)
     #pulseio uses unsigned shorts. Cannot store signed values (exception). Cannot store MAXUSHORT into short either.
     return array('H', a) #Unsigned short: at least 2 bytes
 
@@ -36,14 +34,14 @@ class AbstractIRProtocolDef:
 
 #Covers most "standard" protocols:
 class IRProtocolDef_STD1(AbstractIRProtocolDef):
-    def __init__(self, id, Tunit, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
+    def __init__(self, id, tickT, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
         #msginterval_ms: Minimum time interval between start of repeated messages
         #Default: 32 code bits, 50% duty cycle at 38kHz.
         self.id = id
-        self.Tunit = Tunit #in usec
-        self.pat_pre = array_ticks(pre)
-        self.pat_post = array_ticks(post)
-        self.pat_bit = (array_ticks(_0), array_ticks(_1))
+        self.tickT = tickT #in usec
+        self.pat_pre = ptrain_ticks(pre)
+        self.pat_post = ptrain_ticks(post)
+        self.pat_bit = (ptrain_ticks(_0), ptrain_ticks(_1))
         self.Nbits = Nbits
         self.f = f
         self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
@@ -52,19 +50,19 @@ class IRProtocolDef_STD1(AbstractIRProtocolDef):
 class IRProtocols:
     #NEC WARNING: Protocol appears to expect exactly (-ish) 110ms interval
     #             (start-to-start) for "repeats" to be detected.
-    NEC = IRProtocolDef_STD1("NEC", Tunit=1125//2, #Regular NEC messages
+    NEC = IRProtocolDef_STD1("NEC", tickT=1125//2, #Regular NEC messages
         pre=(16, -8), post=(1, -1), _0=(1, -1), _1=(1, -3),
         Nbits=32, f=38000, duty=1/4, msginterval_ms=110
         #Due to complementary nature of signal:
-        #TMSG=68ms: Pulse train should always last 121*Tunit
+        #TMSG=68ms: Pulse train should always last 121*tickT
     )
-    NECRPT = IRProtocolDef_STD1("NEC-RPT", Tunit=1125//2, #NEC "Protocol" for special repeat message
+    NECRPT = IRProtocolDef_STD1("NEC-RPT", tickT=1125//2, #NEC "Protocol" for special repeat message
         pre=(16, -4), post=(1, -1), _0=tuple(), _1=tuple(),
         Nbits=0, f=38000, duty=1/4, msginterval_ms=110 #No bits to transmit here
-        #TMSG=12ms: Pulse train lasts 21*Tunit
+        #TMSG=12ms: Pulse train lasts 21*tickT
     )
     #SAMSUNG: Basically NEC, but with shorter preamble.
-    SAMSUNG = IRProtocolDef_STD1("Samsung", Tunit=1125//2, #Regular NEC messages... almost
+    SAMSUNG = IRProtocolDef_STD1("Samsung", tickT=1125//2, #Regular NEC messages... almost
         pre=(8, -8), post=(1, -1), _0=(1, -1), _1=(1, -3), #Different start bits
         Nbits=32, f=38000, duty=1/4, msginterval_ms=110
         #Not sure if Samsung respects complementary/redundant pattern

@@ -6,7 +6,6 @@ TODO.
 <!----------------------------------------------------------------------------->
 `TVnymph` depends on libraries included in the "CircuitPython Library Bundle"
 found [HERE](https://circuitpython.org/libraries):
-- adafruit_ticks
 - adafruit_neokey
 - adafruit_pixelbuf
 - neopixel

@@ -1,7 +1,7 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, IRProtocols, array_ticks, array_pulses
-from adafruit_ticks import ticks_ms
+from .Protocols import PulseCount_Max, IRProtocols, ptrain_ticks, ptrain_pulseio
+from .Timebase import now_ms
 import pulseio
 
 
@@ -10,7 +10,7 @@ import pulseio
 class PulseTrain: #Default algorithm: 1 symbol -> 2 pulses
     """Builds up the signal from the provided message as a pulse train"""
     def __init__(self):
-        self.buf = array_ticks((0,)*PulseCount_Max.PACKET)
+        self.buf = ptrain_ticks((0,)*PulseCount_Max.PACKET)
         self.buf_reset()
 
     def buf_reset(self):
@@ -59,8 +59,8 @@ class PulseTrain: #Default algorithm: 1 symbol -> 2 pulses
 #===============================================================================
 class AbstractIRTx:
     def __init__(self):
-        self.tx_start = ticks_ms() #ms
-        self.tx_complete = ticks_ms() #ms
+        self.tx_start = now_ms() #ms
+        self.tx_complete = now_ms() #ms
         self.pulsebuilder = PulseTrain()
 
     #Implement interface::
@@ -72,10 +72,10 @@ class AbstractIRTx:
     #---------------------------------------------------------------------------
 
     def pulsetrain_send(self, ptrain):
-        self.tx_start = ticks_ms()
+        self.tx_start = now_ms()
         self.tx_complete = self.tx_start
         self._pulsetrain_send_immediate(ptrain)
-        self.tx_complete = ticks_ms()
+        self.tx_complete = now_ms()
         return ptrain
 
     def msg_send(self, msg):
@@ -98,8 +98,8 @@ class IRTx_pulseio(AbstractIRTx):
     def pulsetrain_build(self, msg):
         #Returns a pulsetrain ready to be transitted
         pulses = self.pulsebuilder.build(msg)
-        Tunit = msg.prot.Tunit #in us
-        pulses_us = array_pulses(abs(p)*Tunit for p in pulses) #TODO: NOALLOC
+        tickT = msg.prot.tickT #in us
+        pulses_us = ptrain_pulseio(abs(p)*tickT for p in pulses) #TODO: NOALLOC
         return pulses_us
 
     def _pulsetrain_send_immediate(self, pulses_us):

@@ -1,7 +1,7 @@
 #EasyActuation/Buttons.py
 #-------------------------------------------------------------------------------
 from adafruit_neokey.neokey1x4 import NeoKey1x4
-from .Base import ticks_ms
+from .Base import now_ms
 from time import sleep
 
 
@@ -25,7 +25,7 @@ class EasyButton: #State machine (FSM) controlling interations with buttons
 
     def __init__(self):
         self.state = BtnState.UP
-        self.last_press = ticks_ms()
+        self.last_press = now_ms()
 
     #@abstractmethod
     def _scan_raw(self): #Scan for raw button state
@@ -35,7 +35,7 @@ class EasyButton: #State machine (FSM) controlling interations with buttons
 #-------------------------------------------------------------------------------
     def _scan_up(self, stateraw): #Called when BtnState.UP
         if BtnState.DOWN == stateraw:
-            self.last_press = ticks_ms()
+            self.last_press = now_ms()
             self.state = BtnState.DOWN
             return BtnSig.PRESS
         return BtnSig.NONE

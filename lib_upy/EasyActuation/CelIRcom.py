@@ -1,6 +1,6 @@
 #EasyActuation/CelIRcom.py
 #-------------------------------------------------------------------------------
-from .Base import ticks_ms
+from .Base import now_ms
 from time import sleep
 
 
