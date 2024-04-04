@@ -49,7 +49,7 @@ if msg != None:
 #=Main loop
 #===============================================================================
 print("IR: ready to receive!")
-print("\nHI1")
+print("\nHI2")
 while True:
 
     t0 = now_ms()

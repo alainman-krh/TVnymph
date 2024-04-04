@@ -67,22 +67,23 @@ class AbstractIRTx:
     #---------------------------------------------------------------------------
     def io_refreshcfg(self, prot):
         pass
-    #def pulsetrain_build(self, msg):
-    #def _pulsetrain_send_immediate(self, ptrain):
+    #def ptrain_buildnative(self, msg):
+    #def _ptrain_sendnative_immediate(self, ptrainNat):
     #---------------------------------------------------------------------------
 
-    def pulsetrain_send(self, ptrain):
+    def ptrain_sendnative(self, ptrainNat):
+        """Send pulse train ()"""
         self.tx_start = now_ms()
         self.tx_complete = self.tx_start
-        self._pulsetrain_send_immediate(ptrain)
+        self._ptrain_sendnative_immediate(ptrainNat)
         self.tx_complete = now_ms()
-        return ptrain
+        return ptrainNat
 
     def msg_send(self, msg):
         #NOTE: ptrain can be any format most practical for a given implementation
-        ptrain = self.pulsetrain_build(msg)
+        ptrainNat = self.ptrain_buildnative(msg)
         self.io_refreshcfg(msg.prot) #TODO: track last protocol to avoid reconfig???
-        return self.pulsetrain_send(ptrain)
+        return self.ptrain_sendnative(ptrainNat)
 
 #IRTx_pulseio
 #-------------------------------------------------------------------------------
@@ -95,14 +96,14 @@ class IRTx_pulseio(AbstractIRTx):
         #pulseio transmitter:
         self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
 
-    def pulsetrain_build(self, msg):
+    def ptrain_buildnative(self, msg):
         #Returns a pulsetrain ready to be transitted
         pulses = self.pulsebuilder.build(msg)
         tickT = msg.prot.tickT #in us
         pulses_us = ptrain_pulseio(abs(p)*tickT for p in pulses) #TODO: NOALLOC
         return pulses_us
 
-    def _pulsetrain_send_immediate(self, pulses_us):
-        self.piotx.send(pulses_us)
+    def _ptrain_sendnative_immediate(self, ptrainNat):
+        self.piotx.send(ptrainNat)
 
 #Last line

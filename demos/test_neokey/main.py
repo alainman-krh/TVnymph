@@ -73,7 +73,7 @@ while True:
     if trigger_led:
         #WARN: Sending pulse on LED takes time.
         #(Likely will keep IR:MSG_RPT from working as intended)
-        txled.pulsetrain_send(pulsetrain) #Mirror onto LED
+        txled.ptrain_sendnative(pulsetrain) #Mirror onto LED
 
     debug = False #don't show
     if debug and (pulsetrain != None):
