@@ -8,6 +8,7 @@ from micropython import const
 import pulseio
 import gc
 
+#TODO: use .readinto()
 
 #=Constants
 #===============================================================================
@@ -128,10 +129,7 @@ class Decoder_STD1:
 
 #=IRRx
 #===============================================================================
-#TODO: use .readinto(), and class memoryview, gc.collect()
-#IRRx
-#-------------------------------------------------------------------------------
-class IRRx:
+class IRRx: #Implementation for `pulseio` backend.
     def __init__(self, pin, doneT_ms=20, msgmax_ms=IRMSG_TMAX_MS, autoclear=True):
         #doneT_ms: period of inactivity used to detect end of message transmission.
         #autoclear: auto-clear recieve queue before we ask to read a new message
@@ -148,7 +146,7 @@ class IRRx:
 #-------------------------------------------------------------------------------
     def io_configure(self, pin, maxlen):
         #pulseio receiver:
-        self.piorx = pulseio.PulseIn(pin, maxlen=maxlen, idle_state=True)
+        self.piorx = pulseio.PulseIn(pin, maxlen=maxlen, idle_state=False)
 
     def reset(self): #reset recieve queue, ignoring any signal before
         self.piorx.clear()
