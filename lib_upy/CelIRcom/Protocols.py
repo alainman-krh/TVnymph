@@ -4,6 +4,12 @@ from micropython import const
 from array import array
 #import pwmio
 
+#Naming convention:
+#- patT: pulse pattern in time (typ. us)
+#- patK: pulse pattern in "tick count" (each spanning tickT)
+#- tickT: Tick period (us)
+#- tickTm: Tick period (measured) (us)
+
 
 #=Constants
 #===============================================================================

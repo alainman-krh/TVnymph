@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------
 from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Rx_pulseio import IRRx
-from CelIRcom.Timebase import now_ms, ticksms_elapsed
+from CelIRcom.Timebase import now_ms, ms_elapsed
 from CelIRcom.Debug import display_IRMsg32
 from time import sleep
 import board
@@ -58,8 +58,8 @@ while True:
     if msg != None:
         display_IRMsg32(msg)
         print(f"Protocol detected: {msg.prot.id}")
-        print("readtime:", ticksms_elapsed(t0, t1))
-        print("readtime:", ticksms_elapsed(t1, t0))
+        print("readtime:", ms_elapsed(t0, t1))
+        print("readtime:", ms_elapsed(t1, t0))
         printtime_verbose("t0", t0)
     #now = now_ms()
     #print(now, uctypes.sizeof(3, uctypes.LITTLE_ENDIAN))

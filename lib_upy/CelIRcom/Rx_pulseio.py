@@ -3,14 +3,10 @@
 from .Protocols import PulseCount_Max, IRProtocols, ptrain_ticks, ptrain_pulseio, IRMSG_TMAX_MS
 from .Protocols import IRProtocolDef_STD1
 from .Messaging import IRMsg32
-from .Timebase import now_ms
+from .Timebase import now_ms, ms_elapsed
 from micropython import const
 import pulseio
 import gc
-
-#Naming convention:
-#- patT: pulse pattern in time (typ. us)
-#- patK: pulse pattern in "tick count" (each spanning tickT)
 
 
 #=Constants
@@ -145,7 +141,6 @@ class IRRx:
         #self.doneT_ms = max(1, round((doneT_us+500)//1_000)) #Some code needs ms: Cache-it!
         self.msgmax_ms = msgmax_ms
         self.autoclear = autoclear
-        self.read_last = now_ms()
         self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5))
         self.io_configure(pin, maxlen=120)
         self.reset()
@@ -176,12 +171,13 @@ class IRRx:
         N = len(buf)
         if N < 2: #Need to look past first period of "nothingness" to see signal
             return None #No signal yet
-        if not self.msg_detected:
-            self.msg_estTstart = now_ms() #Hopefully wasn't that long ago.
-            self.msg_detected = True
 
         now = now_ms()
-        msg_avail = (now - self.msg_estTstart > self.msgmax_ms)
+        if not self.msg_detected:
+            self.msg_estTstart = now #Hopefully wasn't that long ago.
+            self.msg_detected = True
+
+        msg_avail = (ms_elapsed(self.msg_estTstart, now) > self.msgmax_ms)
         msg_avail = msg_avail or (buf[N-1] > self.doneT_us)
         if not msg_avail:
             return None
@@ -193,13 +189,13 @@ class IRRx:
 
 #-------------------------------------------------------------------------------
     #@micropython.native #TODO
-    def msg_sample(self, ptrain_us, tickT, istart_msg): #Sample pulsetrain to convert to tickT count
+    def msg_sample(self, ptrain_us, tickTm, istart_msg): #Sample pulsetrain to convert to tickTm count
         MAXPKT = PulseCount_Max.PACKET #Can't recognize as a const
         NOMATCH = None
         N = len(ptrain_us)
         i = istart_msg
 
-        Tleft = tickT>>1 #centers "sampling circuitry" to half bit period before next pulse
+        Tleft = tickTm>>1 #centers "sampling circuitry" to half bit period before next pulse
 
         #==Sample pulsetrain:
         buf = self.ptrainK_buf; ibuf = 0
@@ -210,12 +206,12 @@ class IRRx:
             if ibuf > MAXPKT:
                 return NOMATCH
 
-            #Measure pulse duration (# of unit periods) by counting # tickT present
+            #Measure pulse duration (# of unit periods) by counting # tickTm present
             Tleft += ptrain_us[i]
             Npulse = 0
-            while Tleft > tickT:
+            while Tleft > tickTm:
                 Npulse += 1
-                Tleft -= tickT
+                Tleft -= tickTm
             if Npulse < 1:
                 return NOMATCH
             if sgn < 0:
@@ -233,10 +229,10 @@ class IRRx:
 
 #-------------------------------------------------------------------------------
     def msg_decode(self, decoder:Decoder_STD1, ptrain_us):
-        (tickT, istart_msg) = decoder.preamble_detect_tickT(ptrain_us)
-        if tickT <= 0:
+        (tickTm, istart_msg) = decoder.preamble_detect_tickT(ptrain_us)
+        if tickTm <= 0:
             return None
-        ptrainK = self.msg_sample(ptrain_us, tickT, istart_msg)
+        ptrainK = self.msg_sample(ptrain_us, tickTm, istart_msg)
         if ptrainK is None:
             return None
         #print("sampled", ptrain_ticks(ptrainK)) #Must build `ptrain_ticks` to print
