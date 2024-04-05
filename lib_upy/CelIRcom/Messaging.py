@@ -12,7 +12,10 @@ class IRMsg32:
         self.bits = bits #message/code bits
     
     def __str__(self) -> str:
-        return f"{self.prot.id} {self.bits:08X}"
+        Nbits = self.prot.Nbits
+        Nhexdig = (Nbits+3)>>2
+        fmt = "{:0" + f"{Nhexdig}" + "X}"
+        return f"{self.prot.id} " + fmt.format(self.bits)
 
 
 #=Special messages

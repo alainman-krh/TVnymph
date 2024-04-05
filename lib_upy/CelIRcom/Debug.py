@@ -3,6 +3,9 @@
 from .Messaging import IRMsg32
 from .Protocols import IRProtocols
 
+
+#=Helper functions
+#===============================================================================
 def _printNECoverlay(msg_bits):
     #Print NEC message bits one on top of the other
     #(They should be complementary)
@@ -10,11 +13,22 @@ def _printNECoverlay(msg_bits):
         val = ((msg_bits>>sft) & 0xFF)
         print(f"{val:08b}")
 
+
+#=Debugging functions (typ. print)
+#===============================================================================
+def displaytime_verbose(id, t):
+    print(f"{id} (dec): {t}")
+    print(f"{id} = 0x{t:X}")
+
+#-------------------------------------------------------------------------------
 def display_IRMsg32(msg:IRMsg32, verbose=True):
     print(msg)
     if not verbose:
         return
-    print(f"bits: {msg.bits:032b}")
+    Nbits = msg.prot.Nbits
+    if Nbits > 0:
+        fmt = "{:0" + f"{Nbits}" + "b}"
+        print("bits: " + fmt.format(msg.bits))
     if msg.prot is IRProtocols.NEC:
         print("Overlaying to see complimentary pattern:")
         _printNECoverlay(msg.bits)
