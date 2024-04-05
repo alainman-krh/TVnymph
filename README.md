@@ -19,11 +19,9 @@ Demos can be found here in the [`demos/` subdirectory](demos/):
 <!----------------------------------------------------------------------------->
 1. [Install](docs/Install.md)
 
-
-# TODO
 <!----------------------------------------------------------------------------->
-- Break out `CelIRcom` and `EasyActuation` into their own repositories.
-- Figure out how to link them in as submodules.
+# [Known Issues/TODO](docs/KnownIssues.md)
+<!----------------------------------------------------------------------------->
 
 # Compatibility
 <!----------------------------------------------------------------------------->
