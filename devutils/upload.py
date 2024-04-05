@@ -8,7 +8,8 @@ _THIS_FILE = abspath(__file__); _THIS_DIR = dirname(_THIS_FILE); _THIS_REPO = di
 #User config
 #-------------------------------------------------------------------------------
 DEST = "E:\\"
-proj = joinpath("demos", "test_rxIR")
+proj = joinpath("demos", "PCnymph_IR2serial")
+#proj = joinpath("demos", "test_rxIR")
 refresh_libs = True
 
 #Copy code

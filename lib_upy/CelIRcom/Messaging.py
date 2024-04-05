@@ -14,7 +14,7 @@ class IRMsg32:
     def __str__(self) -> str:
         Nbits = self.prot.Nbits
         Nhexdig = (Nbits+3)>>2
-        fmt = "{:0" + f"{Nhexdig}" + "X}"
+        fmt = "0x{:0" + f"{Nhexdig}" + "X}"
         return f"{self.prot.id} " + fmt.format(self.bits)
 
 
