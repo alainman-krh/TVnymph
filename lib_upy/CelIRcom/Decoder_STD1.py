@@ -1,8 +1,10 @@
 #CelIRcom/Decoder_STD1.py: Message decoder for messages conforming to "STD1"
 #-------------------------------------------------------------------------------
-from .Protocols import ptrain_ticks, ptrain_pulseio, IRProtocolDef_STD1
+from .Protocols import ptrain_ticks, IRProtocolDef_STD1
+from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
 from micropython import const
 
+#TODO: Move `ptrain_pulseio` preamble detection to Rx_pulseio. This file should be backend agnostic.
 
 #=Constants
 #===============================================================================
@@ -38,9 +40,9 @@ class Decoder_STD1:
         tpat_pre = _pat_validate(prot.pat_pre)
         MATCH_ABS = round(self.tickT*MATCH_RELTOL)
         tickT_min = self.tickT - MATCH_ABS
-        self.patTmin_pre = ptrain_pulseio(abs(_ticks)*tickT_min for _ticks in tpat_pre)
+        self.patTmin_pre = ptrain_native(abs(_ticks)*tickT_min for _ticks in tpat_pre)
         tickT_max = self.tickT + MATCH_ABS
-        self.patTmax_pre = ptrain_pulseio(abs(_ticks)*tickT_max for _ticks in tpat_pre)
+        self.patTmax_pre = ptrain_native(abs(_ticks)*tickT_max for _ticks in tpat_pre)
 
         self.Nticks_pre = abs(tpat_pre[0]) + abs(tpat_pre[1])
         self.patK_symb = (_pat_validate(prot.pat_bit[0]), _pat_validate(prot.pat_bit[1])) #Symbol (0/1) pattern
@@ -61,7 +63,7 @@ class Decoder_STD1:
         pre_min = self.patTmin_pre; pre_max = self.patTmax_pre #Local alias
         NOMATCH = (0, 0)
         N = len(ptrain_us)
-        i = 1 #Index into ptrain_us[]. Skip over first entry (="nothingness" before preamble)
+        i = 0 #Index into ptrain_us[].
 
         #===Detect preamble
         Npre = len(pre_min)

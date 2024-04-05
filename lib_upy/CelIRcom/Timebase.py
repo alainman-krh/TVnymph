@@ -27,5 +27,10 @@ def ms_elapsed(t0, t1): #Notice t0 (ref) is first.
     return (t1 - t0) & _SUPTICKS_MASK
 
 #-------------------------------------------------------------------------------
+def ms_addwrap(t0, delta):
+    """Always positive"""
+    return (t0 + delta) & _SUPTICKS_MASK
+
+#-------------------------------------------------------------------------------
 def clamp(v, _min, _max):
     return min(max(_min, v), _max)

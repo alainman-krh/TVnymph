@@ -1,9 +1,10 @@
 #CelIRcom/Rx_pulseio.py: IR receiver for `pulseio` backend
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, ptrain_ticks, ptrain_pulseio, IRMSG_TMAX_MS
+from .Protocols import PulseCount_Max, ptrain_ticks, IRMSG_TMAX_MS
+from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
 from .Decoder_STD1 import IRProtocolDef_STD1, Decoder_STD1
 from .Messaging import IRMsg32
-from .Timebase import now_ms, ms_elapsed
+from .Timebase import now_ms, ms_elapsed, ms_addwrap
 from micropython import const
 import pulseio
 import gc
@@ -23,19 +24,57 @@ class IRRx: #Implementation for `pulseio` backend.
         #self.doneT_ms = max(1, round((doneT_us+500)//1_000)) #Some code needs ms: Cache-it!
         self.msgmax_ms = msgmax_ms
         self.autoclear = autoclear
-        self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5))
-        self.io_configure(pin, maxlen=120)
+        self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5)) #NOALLOC
+        self.ptrainT_buf = ptrain_native(range(PulseCount_Max.PACKET+5)) #NOALLOC
+        self.ptrain_native_last = memoryview(self.ptrainT_buf)[:0] #None
+        self.io_configure(pin, maxlen=PulseCount_Max.PACKET*3) #Able to buffer about 3 IR "packets"
         self.reset()
 
 #-------------------------------------------------------------------------------
     def io_configure(self, pin, maxlen):
-        #pulseio receiver:
-        self.piorx = pulseio.PulseIn(pin, maxlen=maxlen, idle_state=False)
+        #Input buffer talking "directly" (as far as I know) to hardware:
+        self.hwbuf = pulseio.PulseIn(pin, maxlen=maxlen, idle_state=True)
 
     def reset(self): #reset recieve queue, ignoring any signal before
-        self.piorx.clear()
+        self.hwbuf.clear()
         self.msg_detected = False
         self.msg_estTstart = now_ms() #Estimated start time
+
+    def ptrain_getnative_last(self):
+        return ptrain_native(self.ptrain_native_last) #Must copy to use with print(), etc
+#-------------------------------------------------------------------------------
+    def _hwbuf_popnext(self):
+        #Assumption: We have detected a full message exists... or timeout.
+        bufin = self.hwbuf
+        bufout = self.ptrainT_buf
+        N = len(self.ptrainT_buf) - 1 #Don't go over... keep 1 to add fake ending (space-"pulse")
+        doneT_us = self.doneT_us #Cache-it
+        i = 0
+        while i < N:
+            if len(bufin) < 1: #Always check... in case there are threading issues
+                break
+            pulse_len = bufin.popleft()
+            bufout[i] = pulse_len
+            i += 1
+            if (pulse_len > doneT_us):
+                i -= 1
+                if i > 0: #Ok. Found an actual message
+                    break
+        #endwhile
+        if (i & 0x1) > 0: #If odd number of pulses found
+            bufout[i] = doneT_us #Need trailing "space" to properly decode signals
+            i += 1
+
+        if len(bufin) < 1:
+            #Don't fully self.reset()... in case pulseio "thread" added a pulse since checked len().
+            self.msg_estTstart = now_ms()
+            self.msg_detected = False
+        else:
+            #Can't really figure out when the "next" message really started (timers saturate)
+            #... so let's assume it starts now (We mostly want to avoid keeping stale data in buffers)
+            self.msg_estTstart = now_ms()
+            self.msg_detected = True
+        return memoryview(bufout)[:i]
 
 #-------------------------------------------------------------------------------
     def _decoder_build(self, prot):
@@ -50,7 +89,7 @@ class IRRx: #Implementation for `pulseio` backend.
 
 #-------------------------------------------------------------------------------
     def ptrain_readnonblock(self): #Get raw pulsetrain (if exists) using non-blocking method
-        buf = self.piorx
+        buf = self.hwbuf
         N = len(buf)
         if N < 2: #Need to look past first period of "nothingness" to see signal
             return None #No signal yet
@@ -61,13 +100,15 @@ class IRRx: #Implementation for `pulseio` backend.
             self.msg_detected = True
 
         msg_avail = (ms_elapsed(self.msg_estTstart, now) > self.msgmax_ms)
-        msg_avail = msg_avail or (buf[N-1] > self.doneT_us)
+        msg_avail = msg_avail or (buf[N-1] >= self.doneT_us)
         if not msg_avail:
             return None
        
         #TODO: only copy until first doneT_us event??? Right now: assume user calls sufficiently often.
-        ptrain_us = ptrain_pulseio(buf[i] for i in range(N)) #Quickly copy - TODO: NOALLOC
-        self.reset() #Ready for next message
+        ptrain_us = self._hwbuf_popnext()
+        #ptrain_us = ptrain_native(buf[i] for i in range(N)) #Quickly copy - TODO: NOALLOC
+        #self.reset() #Ready for next message
+        gc.collect() #Should help
         return ptrain_us
 
 #-------------------------------------------------------------------------------
@@ -84,7 +125,7 @@ class IRRx: #Implementation for `pulseio` backend.
         buf = self.ptrainK_buf; ibuf = 0
         sgn = 1 #Assume message starts on positive pulse.
         while i < N:
-            if ptrain_us[i] > self.doneT_us:
+            if ptrain_us[i] >= self.doneT_us:
                 break
             if ibuf > MAXPKT:
                 return NOMATCH
@@ -130,17 +171,19 @@ class IRRx: #Implementation for `pulseio` backend.
         for decoder in self.decoders:
             #print(f"Trying decoder {decoder.prot.id}...")
             msg = self.msg_decode(decoder, ptrain_us)
-            return msg
+            if msg != None:
+                gc.collect() #Should help
+                return msg
+        gc.collect() #Should help
         return None
 
     def msg_read(self): #Non-blocking
         ptrain_us = self.ptrain_readnonblock()
         if ptrain_us is None:
-            gc.collect() #Should help
             return None
-        #print(ptrain_us)
+        self.ptrain_native_last = memoryview(ptrain_us)
+        #print(ptrain_native(ptrain_us))
         msg = self.msg_decode_any(ptrain_us)
-        gc.collect() #Should help
         return msg
 
 #Last line

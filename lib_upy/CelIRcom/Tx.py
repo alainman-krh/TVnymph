@@ -1,6 +1,7 @@
 #CelIRcom/Tx.py
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, IRProtocols, ptrain_ticks, ptrain_pulseio
+from .Protocols import PulseCount_Max, IRProtocols, ptrain_ticks
+from .Protocols import ptrain_pulseio as ptrain_native #Native... for this transmitter
 from .Timebase import now_ms
 import pulseio
 
@@ -100,7 +101,7 @@ class IRTx_pulseio(AbstractIRTx):
         #Returns a pulsetrain ready to be transitted
         pulses = self.pulsebuilder.build(msg)
         tickT = msg.prot.tickT #in us
-        pulses_us = ptrain_pulseio(abs(p)*tickT for p in pulses) #TODO: NOALLOC
+        pulses_us = ptrain_native(abs(p)*tickT for p in pulses) #TODO: NOALLOC
         return pulses_us
 
     def _ptrain_sendnative_immediate(self, ptrainNat):

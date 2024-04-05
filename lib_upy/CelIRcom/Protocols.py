@@ -28,6 +28,7 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buff
 def ptrain_ticks(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickT)
     return array('b', a) #Store as byte arrays
 
+#TODO: Move to "pulseio"-specific module/file:
 def ptrain_pulseio(a): #Build array of pulse lengths (us)
     #pulseio uses unsigned shorts. Cannot store signed values (exception). Cannot store MAXUSHORT into short either.
     return array('H', a) #Unsigned short: at least 2 bytes
