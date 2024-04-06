@@ -30,7 +30,7 @@ def display_message_info(rx:IRRx, msg:IRMsg32, tmsg):
     print(f"\nIR message detected: {msg.prot.id}")
     displaytime_verbose("---> approx time", tmsg)
     print("Raw message:")
-    print(rx.ptrain_getnative_last()) #Assumes `msg` was just decoded from rx
+    print(rx.ptrainUS_getlast()) #Assumes `msg` was just decoded from rx
     display_IRMsg32(msg)
 
 

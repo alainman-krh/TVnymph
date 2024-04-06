@@ -2,6 +2,7 @@
 #-------------------------------------------------------------------------------
 from .Protocols import PulseCount_Max, ptrain_ticks, IRMSG_TMAX_MS
 from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
+from .DecoderBase import ptrainUS_build
 from .Timebase import now_ms, ms_elapsed, ms_addwrap
 from .TRxBase import AbstractIRRx
 from micropython import const
@@ -16,11 +17,7 @@ import gc
 class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
     def __init__(self, pin):
         super().__init__()
-        doneMS = 20 #(ms) Period of inactivity used to detect end of message transmission.
-        self.doneUS = doneMS * 1_000 #Code needs us: Cache-it!
         self.msgmaxMS = IRMSG_TMAX_MS #Used as timeout to process whatever is in buffer
-        self.ptrainT_buf = ptrain_native(range(PulseCount_Max.PACKET+5)) #NOALLOC
-        self.ptrain_native_last = memoryview(self.ptrainT_buf)[:0] #Needs to be updated
         self.io_configure(pin, maxlen=PulseCount_Max.PACKET*3) #Able to buffer about 3 IR "packets"
         self.reset()
 
@@ -33,9 +30,6 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
         self.hwbuf.clear()
         self.msg_detected = False
         self.msg_estTstart = now_ms() #Estimated start time
-
-    def ptrain_getnative_last(self):
-        return ptrain_native(self.ptrain_native_last) #Must copy to use with print(), etc
 
 #-------------------------------------------------------------------------------
     def _hwbuf_popnext(self):
@@ -94,43 +88,5 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
         #self.reset() #Ready for next message
         gc.collect() #Should help
         return ptrain_us
-
-#-------------------------------------------------------------------------------
-    #@micropython.native #TODO
-    def msg_sample(self, ptrain_us, tickTm, istart_msg): #Sample pulsetrain to convert to tickTm count
-        doneUS = self.doneUS #Cache-it
-        NOMATCH = None
-        N = len(ptrain_us)
-        i = istart_msg
-
-        Tleft = tickTm>>1 #centers "sampling circuitry" to half bit period before next pulse
-
-        #==Sample pulsetrain:
-        buf = self.ptrainK_buf; ibuf = 0
-        sgn = 1 #Assume message starts on positive pulse.
-        while i < N:
-            if ptrain_us[i] >= doneUS:
-                break
-
-            #Measure pulse duration (# of unit periods) by counting # tickTm present
-            Tleft += ptrain_us[i]
-            Npulse = 0
-            while Tleft > tickTm:
-                Npulse += 1
-                Tleft -= tickTm
-            if Npulse < 1:
-                return NOMATCH
-            if sgn < 0:
-                Npulse = -Npulse
-            buf[ibuf] = Npulse; ibuf += 1
-            i += 1; sgn = -sgn
-        if sgn != -1:
-            return NOMATCH
-
-        #Add extra item and set to something negative:
-        buf[ibuf] = sgn
-        Nbuf = ibuf+1
-        result = memoryview(buf)[:Nbuf] #Avoids copies
-        return result
 
 #Last line

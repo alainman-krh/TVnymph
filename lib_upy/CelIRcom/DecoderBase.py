@@ -13,8 +13,8 @@ NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of 
 
 #=Helper functions
 #===============================================================================
-def ptrain_us(a): #Build array of pulse lengths (us) - unsigned
-    #WARNING: Cannot store signed values (exception).
+def ptrainUS_build(a): #Build array of pulse lengths (us)
+    #Using unsigned shorts (matching pulseio lib). Cannot store signed values (exception).
     return array('H', a) #Unsigned short: at least 2 bytes
 
 #-------------------------------------------------------------------------------
@@ -45,17 +45,17 @@ class Decoder_Preamble2():
         #Compute/store min/max pulse pattern widths:
         tpat_pre = pat2_validate(prot.pat_pre)
         tickT_min = tickT - MATCH_ABS
-        self.patTmin_pre = ptrain_us(abs(_ticks)*tickT_min for _ticks in tpat_pre)
+        self.patTmin_pre = ptrainUS_build(abs(_ticks)*tickT_min for _ticks in tpat_pre)
         tickT_max = tickT + MATCH_ABS
-        self.patTmax_pre = ptrain_us(abs(_ticks)*tickT_max for _ticks in tpat_pre)
+        self.patTmax_pre = ptrainUS_build(abs(_ticks)*tickT_max for _ticks in tpat_pre)
         self.Nticks_pre = abs(tpat_pre[0]) + abs(tpat_pre[1])
 
 #-------------------------------------------------------------------------------
-    def preamble_detect_tickT(self, ptrain_us):
+    def preamble_detect_tickT(self, ptrainUS):
         pre_min = self.patTmin_pre; pre_max = self.patTmax_pre #Local alias
         NOMATCH = (0, 0)
-        N = len(ptrain_us)
-        i = 0 #Index into ptrain_us[].
+        N = len(ptrainUS)
+        i = 0 #Index into ptrainUS[].
 
         #===Detect preamble
         Npre = len(pre_min)
@@ -64,7 +64,7 @@ class Decoder_Preamble2():
 
         Tpre = 0 #Accumulator: total preamble period
         for j in range(Npre): #index into pre_* arrays
-            pi = ptrain_us[i]
+            pi = ptrainUS[i]
             if not (pre_min[j] <= pi <= pre_max[j]):
                 return NOMATCH
             Tpre += pi

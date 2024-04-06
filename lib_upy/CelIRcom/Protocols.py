@@ -8,7 +8,6 @@ from array import array
 #- patT: pulse pattern in time (typ. us)
 #- patK: pulse pattern in "tick count" (each spanning tickT)
 #- tickT: Tick period (us)
-#- tickTm: Tick period (measured) (us)
 
 
 #=Constants
