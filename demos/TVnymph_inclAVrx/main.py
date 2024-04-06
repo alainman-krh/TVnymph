@@ -6,7 +6,6 @@ import CelIRcom.Protocols_PDE as PDE
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
-from array import array
 from time import sleep
 import board
 

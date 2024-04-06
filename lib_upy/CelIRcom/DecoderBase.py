@@ -7,7 +7,8 @@ from micropython import const
 
 #=Constants
 #===============================================================================
-MATCH_RELTOL = const(0.2) #20% relative tolerance for identifying start bits as matching
+#Pre-v9 CircuitPython: const() must be integer?!
+MATCH_RELTOL = 0.2 #20% relative tolerance for identifying start bits as matching
 NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of mark-space pulses
 
 
@@ -39,7 +40,7 @@ class AbstractDecoder:
     def __init__(self, prot:AbstractIRProtocolDef):
         self.prot = prot #keep a reference
 
-    #Interface to be implemented
+    #Implement interface:
 #-------------------------------------------------------------------------------
     #@abstractmethod #Doesn't exist
     def preamble_detect_tickT(self, ptrainUS):

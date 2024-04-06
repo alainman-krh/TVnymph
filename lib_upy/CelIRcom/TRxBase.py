@@ -1,22 +1,22 @@
 #CelIRcom/TRxBase.py: Base definitions for IR transmitters/receivers
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, ptrain_ticks
+from .Protocols import PulseCount_Max, ptrain_ticks, IRMsg32
 from .DecoderBase import ptrainUS_build, AbstractDecoder
-from CelIRcom.Protocols import IRMsg32
+from .Timebase import now_ms
 from micropython import const
-from array import array
 import gc
 
 #TODO: use .readinto()
+#TODO: Create/re-use TX buffer ptrain_native[PulseCount_Max]
 
 #Naming convention:
 #- tickUSm: Tick period (us) - measured.
 
 
-#=AbstractIRRx
+#=msg_sample: mimick sampling hardware counting ticks in each pulse of ptrainUS
 #===============================================================================
 #@micropython.native #TODO
-def msg_sample(ptrainK_buf, ptrainUS, tickUSm, istart_msg, doneUS): #Sample pulsetrain to convert to tickUSm count
+def msg_sample(ptrainK_buf, ptrainUS, tickUSm, istart_msg, doneUS): #Sample `ptrainUS` - converting to `tickUSm` count
     NOMATCH = None
     N = len(ptrainUS)
     i = istart_msg
@@ -50,6 +50,36 @@ def msg_sample(ptrainK_buf, ptrainUS, tickUSm, istart_msg, doneUS): #Sample puls
     Nbuf = ibuf+1
     result = memoryview(buf)[:Nbuf] #Avoids copies
     return result
+
+
+#=AbstractIRTx
+#===============================================================================
+class AbstractIRTx:
+    def __init__(self):
+        self.tx_start = now_ms() #ms
+        self.tx_complete = now_ms() #ms
+        self.ptrainK = ptrain_ticks((0,)*PulseCount_Max.PACKET) #Buffer
+
+    #---------------------------------------------------------------------------
+    def ptrain_sendnative(self, ptrainNat):
+        """Send pulse train ()"""
+        self.tx_start = now_ms()
+        self.tx_complete = self.tx_start
+        self._ptrain_sendnative_immediate(ptrainNat)
+        self.tx_complete = now_ms()
+        return ptrainNat
+
+    def msg_send(self, msg:IRMsg32):
+        #NOTE: ptrain can be any format most practical for a given implementation
+        N = msg.prot.encode(self.ptrainK, msg)
+        ptrainK = memoryview(self.ptrainK)[:N]
+        ptrainNat = self.ptrain_buildnative(ptrainK, msg.prot.tickT)
+        return self.ptrain_sendnative(ptrainNat)
+
+    #Implement interface:
+    #---------------------------------------------------------------------------
+    #def ptrain_buildnative(self, ptrainK, tickT):
+    #def _ptrain_sendnative_immediate(self, ptrainNat):
 
 
 #=AbstractIRRx

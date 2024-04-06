@@ -4,8 +4,6 @@ from .Protocols import ptrain_ticks, AbstractIRProtocolDef, IRMsg32
 from .DecoderBase import Decoder_Preamble2, pat2_validate
 from micropython import const
 
-#TODO: DEPRECATE "STD1"
-
 
 #=Constants
 #===============================================================================
@@ -15,12 +13,11 @@ NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of 
 #=Protocol definitions
 #===============================================================================
 class IRProtocolDef_PDE(AbstractIRProtocolDef):
-    """Pulse distance encoding"""
+    """Pulse distance encoding (Default algorithm: 1 symbol -> 2 pulses)"""
     def __init__(self, id, tickT, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
         #msginterval_ms: Minimum time interval between start of repeated messages
         #Default: 32 code bits, 50% duty cycle at 38kHz.
-        self.id = id
-        self.tickT = tickT #in usec
+        super().__init__(id, tickT) #in usec
         self.pat_pre = ptrain_ticks(pre)
         self.pat_post = ptrain_ticks(post)
         self.pat_bit = (ptrain_ticks(_0), ptrain_ticks(_1))
@@ -28,6 +25,45 @@ class IRProtocolDef_PDE(AbstractIRProtocolDef):
         self.f = f
         self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
         self.msginterval_ms = msginterval_ms
+
+    #Encoding is simple... we'll do it here (Also more convenient when sending messages):
+#-------------------------------------------------------------------------------
+    @staticmethod #Provide all arguments on call stack. called often. Probably more efficient.
+    def _buf_add(ptrainK, N, parr):
+        #Add pulse pattern in parr to ptrainK (merge with current pulse if polarity matches)
+        for pulse in parr:
+            polL = ptrainK[N] >= 0 #Last polarity
+            polP = pulse > 0
+            if polL == polP:
+                ptrainK[N] += pulse
+            else:
+                N += 1
+                ptrainK[N] = pulse
+        return N
+
+    def encode(self, ptrainK, msg):
+        """Message->`ptrain_ticks` encoder."""
+        buf_add = IRProtocolDef_PDE._buf_add #Alias
+        ptrainK[0] = 0 #Output buffer. Initialize "last" value
+        N = 0 #Number of bits written to buffer
+
+        #Add preamble:
+        N = buf_add(ptrainK, N, self.pat_pre)
+
+        #Add message bits themselves:
+        pat_bit = self.pat_bit #array for both bits 0 & 1
+        Nbits = self.Nbits; posN = Nbits-1 #Next bit position (MSB to LSB)
+        bits = msg.bits #message/code bits
+        while posN >= 0:
+            bit_i = (bits >> posN) & 0x1
+            N = buf_add(ptrainK, N, pat_bit[bit_i])
+            posN -= 1
+
+        #Add postamble:
+        N = buf_add(ptrainK, N, self.pat_post)
+        N += 1 #"Accept" final entry
+        return N #How many values are valid
+
 
 #-------------------------------------------------------------------------------
 class IRProtocols:

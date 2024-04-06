@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------
 from .Protocols import PulseCount_Max, ptrain_ticks
 from .Protocols import ptrain_pulseio as ptrain_native #Native... for this transmitter
-from .Tx import AbstractIRTx
+from .TRxBase import AbstractIRTx
 import pulseio
 
 #TODO: Create/re-use buffer ptrain_native[PulseCount_Max]

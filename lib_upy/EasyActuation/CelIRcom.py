@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------
 from .Base import now_ms, ms_elapsed, clamp
 from CelIRcom.Protocols import IRMsg32
-from CelIRcom.Tx import AbstractIRTx
+from CelIRcom.TRxBase import AbstractIRTx
 from time import sleep
 
 

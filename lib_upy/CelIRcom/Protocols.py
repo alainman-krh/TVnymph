@@ -36,7 +36,14 @@ def ptrain_pulseio(a): #Build array of pulse lengths (us)
 #=Abstract definitions
 #===============================================================================
 class AbstractIRProtocolDef:
-    pass
+    def __init__(self, id, tickT):
+        self.id = id
+        self.tickT = tickT 
+
+    #Implement interface:
+#-------------------------------------------------------------------------------
+    def encode(self, ptrainK, msg):
+        pass
 
 
 #=Message classes
