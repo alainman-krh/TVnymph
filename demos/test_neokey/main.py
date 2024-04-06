@@ -1,7 +1,7 @@
 #TVnymph/test_neokey: Test IR control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
 from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
-from CelIRcom.Tx import IRTx_pulseio as IRTx
+from CelIRcom.Tx_pulseio import IRTx
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4

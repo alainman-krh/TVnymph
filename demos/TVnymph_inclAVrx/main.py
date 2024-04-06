@@ -1,7 +1,7 @@
 #TVnymph/TVnymph_inclAVrx: Typical example (this one controls an AV receiver).
 #-------------------------------------------------------------------------------
 from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
-from CelIRcom.Tx import IRTx_pulseio as IRTx
+from CelIRcom.Tx_pulseio import IRTx
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
@@ -72,7 +72,7 @@ class OpMode:
         self.id = id
         self.ctrlseq = ctrlseq
 
-    def activate(self, irtx):
+    def activate(self, irtx:EasyTx):
         print(f"Switching to mode: {self.id}")
         for step in self.ctrlseq:
             if step is None:
