@@ -2,9 +2,8 @@
 #-------------------------------------------------------------------------------
 from .Protocols import PulseCount_Max, ptrain_ticks, IRMSG_TMAX_MS
 from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
-from .Decoder_STD1 import IRProtocolDef_STD1, Decoder_STD1
-from .Messaging import IRMsg32
 from .Timebase import now_ms, ms_elapsed, ms_addwrap
+from .TRxBase import AbstractIRTx
 from micropython import const
 import pulseio
 import gc
@@ -14,19 +13,14 @@ import gc
 
 #=IRRx
 #===============================================================================
-class IRRx: #Implementation for `pulseio` backend.
-    def __init__(self, pin, doneT_ms=20, msgmax_ms=IRMSG_TMAX_MS, autoclear=True):
-        #doneT_ms: period of inactivity used to detect end of message transmission.
-        #autoclear: auto-clear recieve queue before we ask to read a new message
-        #super().__init__()
-        doneT_ms = max(10, doneT_ms) #No less than 10ms
-        self.doneT_us = doneT_ms * 1_000 #Code needs us: Cache-it!
-        #self.doneT_ms = max(1, round((doneT_us+500)//1_000)) #Some code needs ms: Cache-it!
-        self.msgmax_ms = msgmax_ms
-        self.autoclear = autoclear
-        self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5)) #NOALLOC
+class IRRx(AbstractIRTx): #Implementation for `pulseio` backend.
+    def __init__(self, pin):
+        super().__init__()
+        doneMS = 20 #(ms) Period of inactivity used to detect end of message transmission.
+        self.doneUS = doneMS * 1_000 #Code needs us: Cache-it!
+        self.msgmaxMS = IRMSG_TMAX_MS #Used as timeout to process whatever is in buffer
         self.ptrainT_buf = ptrain_native(range(PulseCount_Max.PACKET+5)) #NOALLOC
-        self.ptrain_native_last = memoryview(self.ptrainT_buf)[:0] #None
+        self.ptrain_native_last = memoryview(self.ptrainT_buf)[:0] #Needs to be updated
         self.io_configure(pin, maxlen=PulseCount_Max.PACKET*3) #Able to buffer about 3 IR "packets"
         self.reset()
 
@@ -42,13 +36,14 @@ class IRRx: #Implementation for `pulseio` backend.
 
     def ptrain_getnative_last(self):
         return ptrain_native(self.ptrain_native_last) #Must copy to use with print(), etc
+
 #-------------------------------------------------------------------------------
     def _hwbuf_popnext(self):
         #Assumption: We have detected a full message exists... or timeout.
         bufin = self.hwbuf
         bufout = self.ptrainT_buf
         N = len(self.ptrainT_buf) - 1 #Don't go over... keep 1 to add fake ending (space-"pulse")
-        doneT_us = self.doneT_us #Cache-it
+        doneUS = self.doneUS #Cache-it
         i = 0
         while i < N:
             if len(bufin) < 1: #Always check... in case there are threading issues
@@ -56,13 +51,13 @@ class IRRx: #Implementation for `pulseio` backend.
             pulse_len = bufin.popleft()
             bufout[i] = pulse_len
             i += 1
-            if (pulse_len > doneT_us):
+            if (pulse_len > doneUS):
                 i -= 1
                 if i > 0: #Ok. Found an actual message
                     break
         #endwhile
         if (i & 0x1) > 0: #If odd number of pulses found
-            bufout[i] = doneT_us #Need trailing "space" to properly decode signals
+            bufout[i] = doneUS #Need trailing "space" to properly decode signals
             i += 1
 
         if len(bufin) < 1:
@@ -77,17 +72,6 @@ class IRRx: #Implementation for `pulseio` backend.
         return memoryview(bufout)[:i]
 
 #-------------------------------------------------------------------------------
-    def _decoder_build(self, prot):
-        T = prot.__class__
-        #TODO: Figure out a way to do this without importing all protocols (save space)
-        if T is IRProtocolDef_STD1:
-            return Decoder_STD1(prot)
-        raise Exception(f"Protocol not supported: {T}")
-
-    def protocols_setactive(self, prot_list):
-        self.decoders = tuple(self._decoder_build(prot) for prot in prot_list)
-
-#-------------------------------------------------------------------------------
     def ptrain_readnonblock(self): #Get raw pulsetrain (if exists) using non-blocking method
         buf = self.hwbuf
         N = len(buf)
@@ -99,12 +83,12 @@ class IRRx: #Implementation for `pulseio` backend.
             self.msg_estTstart = now #Hopefully wasn't that long ago.
             self.msg_detected = True
 
-        msg_avail = (ms_elapsed(self.msg_estTstart, now) > self.msgmax_ms)
-        msg_avail = msg_avail or (buf[N-1] >= self.doneT_us)
+        msg_avail = (ms_elapsed(self.msg_estTstart, now) > self.msgmaxMS)
+        msg_avail = msg_avail or (buf[N-1] >= self.doneUS)
         if not msg_avail:
             return None
        
-        #TODO: only copy until first doneT_us event??? Right now: assume user calls sufficiently often.
+        #TODO: only copy until first doneUS event??? Right now: assume user calls sufficiently often.
         ptrain_us = self._hwbuf_popnext()
         #ptrain_us = ptrain_native(buf[i] for i in range(N)) #Quickly copy - TODO: NOALLOC
         #self.reset() #Ready for next message
@@ -115,6 +99,7 @@ class IRRx: #Implementation for `pulseio` backend.
     #@micropython.native #TODO
     def msg_sample(self, ptrain_us, tickTm, istart_msg): #Sample pulsetrain to convert to tickTm count
         MAXPKT = PulseCount_Max.PACKET #Can't recognize as a const
+        doneUS = self.doneUS #Cache-it
         NOMATCH = None
         N = len(ptrain_us)
         i = istart_msg
@@ -125,7 +110,7 @@ class IRRx: #Implementation for `pulseio` backend.
         buf = self.ptrainK_buf; ibuf = 0
         sgn = 1 #Assume message starts on positive pulse.
         while i < N:
-            if ptrain_us[i] >= self.doneT_us:
+            if ptrain_us[i] >= doneUS:
                 break
             if ibuf > MAXPKT:
                 return NOMATCH
@@ -150,40 +135,5 @@ class IRRx: #Implementation for `pulseio` backend.
         Nbuf = ibuf+1
         result = memoryview(buf)[:Nbuf] #Avoids copies
         return result
-
-#-------------------------------------------------------------------------------
-    def msg_decode(self, decoder:Decoder_STD1, ptrain_us):
-        (tickTm, istart_msg) = decoder.preamble_detect_tickT(ptrain_us)
-        if tickTm <= 0:
-            return None
-        ptrainK = self.msg_sample(ptrain_us, tickTm, istart_msg)
-        if ptrainK is None:
-            return None
-        #print("sampled", ptrain_ticks(ptrainK)) #Must build `ptrain_ticks` to print
-        msg_bits = decoder.msg_decode(ptrainK)
-        if msg_bits is None:
-            return None
-        msg = IRMsg32(decoder.prot, msg_bits)
-        return msg
-
-#-------------------------------------------------------------------------------
-    def msg_decode_any(self, ptrain_us):
-        for decoder in self.decoders:
-            #print(f"Trying decoder {decoder.prot.id}...")
-            msg = self.msg_decode(decoder, ptrain_us)
-            if msg != None:
-                gc.collect() #Should help
-                return msg
-        gc.collect() #Should help
-        return None
-
-    def msg_read(self): #Non-blocking
-        ptrain_us = self.ptrain_readnonblock()
-        if ptrain_us is None:
-            return None
-        self.ptrain_native_last = memoryview(ptrain_us)
-        #print(ptrain_native(ptrain_us))
-        msg = self.msg_decode_any(ptrain_us)
-        return msg
 
 #Last line
