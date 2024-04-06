@@ -1,4 +1,4 @@
-#CelIRcom/Decoder_STD1.py: Message decoder for messages conforming to "STD1"
+#CelIRcom/Decoder_STD1.py: Decoding for messages conforming to "STD1"
 #-------------------------------------------------------------------------------
 from .DecoderBase import Decoder_Preamble2, pat2_validate
 from .Protocols import ptrain_ticks, IRProtocolDef_STD1
