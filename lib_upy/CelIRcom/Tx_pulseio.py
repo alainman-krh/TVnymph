@@ -20,6 +20,7 @@ class IRTx(AbstractIRTx):
         self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
 
     def ptrain_buildnative(self, ptrainK, tickT):
+        #Convert ptrainK to a format usable by `PulseOut`:
         return ptrain_native(abs(p)*tickT for p in ptrainK) #TODO: NOALLOC
 
     def _ptrain_sendnative_immediate(self, ptrainNat):
