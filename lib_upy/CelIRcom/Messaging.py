@@ -11,11 +11,19 @@ class IRMsg32:
         self.prot = prot
         self.bits = bits #message/code bits
     
-    def __str__(self) -> str:
+    def str_hex(self, prefix="0x") -> str:
         Nbits = self.prot.Nbits
         Nhexdig = (Nbits+3)>>2
-        fmt = "0x{:0" + f"{Nhexdig}" + "X}"
-        return f"{self.prot.id} " + fmt.format(self.bits)
+        fmt = "{:0" + f"{Nhexdig}" + "X}"
+        return f"{self.prot.id} {prefix}" + fmt.format(self.bits)
+
+    def str_bin(self, prefix="0b") -> str:
+        Nbits = self.prot.Nbits
+        fmt = "{:0" + f"{Nbits}" + "b}"
+        return f"{self.prot.id} {prefix}" + fmt.format(self.bits)
+
+    def __str__(self) -> str:
+        return self.str_hex()
 
 
 #=Special messages

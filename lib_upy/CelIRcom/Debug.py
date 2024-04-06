@@ -22,13 +22,11 @@ def displaytime_verbose(id, t):
 
 #-------------------------------------------------------------------------------
 def display_IRMsg32(msg:IRMsg32, verbose=True):
-    print(msg)
+    print(msg.str_hex())
     if not verbose:
         return
-    Nbits = msg.prot.Nbits
-    if Nbits > 0:
-        fmt = "{:0" + f"{Nbits}" + "b}"
-        print("bits: " + fmt.format(msg.bits))
+    if msg.prot.Nbits > 0:
+        print(msg.str_bin())
     if msg.prot is IRProtocols.NEC:
         print("Overlaying to see complimentary pattern:")
         _printNECoverlay(msg.bits)

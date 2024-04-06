@@ -26,5 +26,5 @@ IRProtocols.NECRPT.id = "IR-RPT"
 while True:
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one
     if msg != None:
-        print(msg)
+        print(msg.str_hex(prefix="")) #Don't send "0x". Minimize data transmission
     #endif
