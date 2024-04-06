@@ -5,7 +5,6 @@ from array import array
 from micropython import const
 
 
-
 #=Constants
 #===============================================================================
 MATCH_RELTOL = const(0.2) #20% relative tolerance for identifying start bits as matching

@@ -13,9 +13,9 @@ from array import array
 
 #=Constants
 #===============================================================================
-IRMSG_TMAX_MS = const(100) #Maximum message length in ms.
+IRMSG_TMAX_MS = const(100) #Timeout: Maximum message length in ms.
 
-class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocate Tx buffers)
+class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocation of Rx/Tx buffers)
     PRE = 2; POST = 2 #Pre/Postamble
     #List supported protocols (typ: #of bits * 2 pulses/symbol)
     #- NEC: 32*2
