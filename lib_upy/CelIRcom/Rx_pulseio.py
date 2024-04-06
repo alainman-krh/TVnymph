@@ -3,7 +3,7 @@
 from .Protocols import PulseCount_Max, ptrain_ticks, IRMSG_TMAX_MS
 from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
 from .Timebase import now_ms, ms_elapsed, ms_addwrap
-from .TRxBase import AbstractIRTx
+from .TRxBase import AbstractIRRx
 from micropython import const
 import pulseio
 import gc
@@ -13,7 +13,7 @@ import gc
 
 #=IRRx
 #===============================================================================
-class IRRx(AbstractIRTx): #Implementation for `pulseio` backend.
+class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
     def __init__(self, pin):
         super().__init__()
         doneMS = 20 #(ms) Period of inactivity used to detect end of message transmission.

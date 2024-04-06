@@ -10,9 +10,9 @@ import gc
 #TODO: use .readinto()
 
 
-#=AbstractIRTx
+#=AbstractIRRx
 #===============================================================================
-class AbstractIRTx:
+class AbstractIRRx:
     def __init__(self):
         self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5)) #NOALLOC
 
