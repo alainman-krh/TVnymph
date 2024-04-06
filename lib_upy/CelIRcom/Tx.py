@@ -6,7 +6,7 @@ from .Timebase import now_ms
 
 #TODO: Create/re-use buffer ptrain_native[PulseCount_Max]
 
-#=IRTx
+#=AbstractIRTx
 #===============================================================================
 class AbstractIRTx:
     def __init__(self):
