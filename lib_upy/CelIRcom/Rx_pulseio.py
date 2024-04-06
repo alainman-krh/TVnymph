@@ -98,7 +98,6 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
 #-------------------------------------------------------------------------------
     #@micropython.native #TODO
     def msg_sample(self, ptrain_us, tickTm, istart_msg): #Sample pulsetrain to convert to tickTm count
-        MAXPKT = PulseCount_Max.PACKET #Can't recognize as a const
         doneUS = self.doneUS #Cache-it
         NOMATCH = None
         N = len(ptrain_us)
@@ -112,8 +111,6 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
         while i < N:
             if ptrain_us[i] >= doneUS:
                 break
-            if ibuf > MAXPKT:
-                return NOMATCH
 
             #Measure pulse duration (# of unit periods) by counting # tickTm present
             Tleft += ptrain_us[i]
