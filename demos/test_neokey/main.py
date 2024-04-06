@@ -1,7 +1,8 @@
 #TVnymph/test_neokey: Test IR control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
-from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Tx_pulseio import IRTx
+from CelIRcom.Protocols import IRMsg32
+import CelIRcom.Protocols_PDE as PDE
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4
@@ -18,8 +19,8 @@ txled_pin = board.LED
 #=Main config
 #===============================================================================
 #Mesages we will be using:
-IRPROT = IRProtocols.NEC
-MSG_RPT = IRMSG32_NECRPT #Special repeat message
+IRPROT = PDE.IRProtocols.NEC
+MSG_RPT = PDE.IRMSG32_NECRPT #Special repeat message
 MSG_VOLDN = IRMsg32(IRPROT, 0x5EA1D827) #Yamaha: Volume down
 
 #Colors we will be using:

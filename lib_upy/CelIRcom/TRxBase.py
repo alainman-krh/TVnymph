@@ -1,9 +1,8 @@
 #CelIRcom/TRxBase.py: Base definitions for IR transmitters/receivers
 #-------------------------------------------------------------------------------
 from .Protocols import PulseCount_Max, ptrain_ticks
-from .Decoder_STD1 import IRProtocolDef_STD1, Decoder_STD1
-from .DecoderBase import ptrainUS_build
-from .Messaging import IRMsg32
+from .DecoderBase import ptrainUS_build, AbstractDecoder
+from CelIRcom.Protocols import IRMsg32
 from micropython import const
 from array import array
 import gc
@@ -69,18 +68,11 @@ class AbstractIRRx:
         return ptrainUS_build(self.ptrainUS_last) #Must copy to use with print(), etc
 
 #-------------------------------------------------------------------------------
-    def _decoder_build(self, prot):
-        T = prot.__class__
-        #TODO: Figure out a way to do this without importing all protocols (save space)
-        if T is IRProtocolDef_STD1:
-            return Decoder_STD1(prot)
-        raise Exception(f"Protocol not supported: {T}")
-
-    def protocols_setactive(self, prot_list):
-        self.decoders = tuple(self._decoder_build(prot) for prot in prot_list)
+    def decoders_setactive(self, decoder_list):
+        self.decoders = decoder_list
 
 #-------------------------------------------------------------------------------
-    def msg_trydecode(self, ptrainUS, decoder:Decoder_STD1):
+    def msg_trydecode(self, ptrainUS, decoder:AbstractDecoder):
         (tickUSm, istart_msg) = decoder.preamble_detect_tickT(ptrainUS)
         if tickUSm <= 0:
             return None

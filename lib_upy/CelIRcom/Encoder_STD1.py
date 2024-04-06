@@ -1,12 +1,12 @@
 #CelIRcom/Encoder_STD1.py: Encoder for messages conforming to "STD1"
 #-------------------------------------------------------------------------------
-from .Protocols import ptrain_ticks, IRProtocolDef_STD1
+from .Protocols import ptrain_ticks, IRProtocolDef_PDE
 
 
 #=PulseTrain: stores pulses in signed ticks
 #===============================================================================
 class Encoder_STD1: #Default algorithm: 1 symbol -> 2 pulses
-    """Message->`ptrain_ticks` encoder for protocols adhering to IRProtocolDef_STD1."""
+    """Message->`ptrain_ticks` encoder for protocols adhering to IRProtocolDef_PDE."""
     @staticmethod #Provide all arguments on call stack. called often. Probably more efficient.
     def buf_add(ptrainK, N, parr):
         #Add pulse pattern in parr to ptrainK (merge with current pulse if polarity matches)

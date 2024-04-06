@@ -1,7 +1,8 @@
 #demos/test_rxIR: Test receiving/decoding IR signals.
 #-------------------------------------------------------------------------------
-from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Rx_pulseio import IRRx, ptrain_native
+from CelIRcom.Protocols import IRMsg32
+import CelIRcom.Protocols_PDE as PDE
 from CelIRcom.Timebase import now_ms, ms_elapsed
 from CelIRcom.Debug import display_IRMsg32, displaytime_verbose
 from time import sleep
@@ -17,8 +18,7 @@ rx_pin = board.GP16 #RP2040 nano
 #=Main config
 #===============================================================================
 rx = IRRx(rx_pin)
-#Mesages we will be detecting:
-rx.protocols_setactive([IRProtocols.NEC, IRProtocols.NECRPT])
+rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderNECRPT()])
 
 
 #=Helper functions
@@ -46,7 +46,7 @@ print("=====TEST DONE=====")
 #=Main loop
 #===============================================================================
 print("IR: ready to receive!")
-print("\nHI1")
+print("\nHI2")
 while True:
     t0 = now_ms()
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one

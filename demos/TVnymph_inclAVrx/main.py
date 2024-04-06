@@ -1,7 +1,8 @@
 #TVnymph/TVnymph_inclAVrx: Typical example (this one controls an AV receiver).
 #-------------------------------------------------------------------------------
-from CelIRcom.Messaging import IRProtocols, IRMsg32, IRMSG32_NECRPT
 from CelIRcom.Tx_pulseio import IRTx
+from CelIRcom.Protocols import IRMsg32
+import CelIRcom.Protocols_PDE as PDE
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
@@ -21,8 +22,8 @@ i2c_bus = board.I2C() #use default I2C bus (NeoKey)
 #===============================================================================
 #Mesages we will be using:
 class MSG_TV: #Namespace (Samsung TV)
-    PROT = IRProtocols.SAMSUNG
-    RPT = IRMSG32_NECRPT #Special repeat message
+    PROT = PDE.IRProtocols.SAMSUNG
+    RPT = PDE.IRMSG32_NECRPT #Special repeat message
 
     ON = IRMsg32(PROT, 0xE0E09966)
     OFF = IRMsg32(PROT, 0xE0E019E6)
@@ -39,8 +40,8 @@ class MSG_TV: #Namespace (Samsung TV)
     INPUT_SAT = HDMI3
 
 class MSG_RX: #Namespace (Yamaha RX-V475)
-    PROT = IRProtocols.NEC
-    RPT = IRMSG32_NECRPT #Special repeat message
+    PROT = PDE.IRProtocols.NEC
+    RPT = PDE.IRMSG32_NECRPT #Special repeat message
 
     ON = IRMsg32(PROT, 0x5EA1B847)
     OFF = IRMsg32(PROT, 0x5EA17887)
@@ -58,7 +59,7 @@ class MSG_RX: #Namespace (Yamaha RX-V475)
     INPUT_GAMEPC = HDMI3
 
 class MSG_BRAY: #Namespace
-    PROT = IRProtocols.NEC #NO: SONY
+    PROT = PDE.IRProtocols.NEC #NO: SONY
 
     #Sony BluRay:
     ON = None #IRMsg32(PROT, 0x0)
@@ -145,7 +146,7 @@ KEYPAD_COLORS = ( #NeoPixel colors assoicated with each NeoKey:
 #=IO config
 #===============================================================================
 #Connect to IR diode & on-board LED:
-tx = IRTx(tx_pin, IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
+tx = IRTx(tx_pin, PDE.IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
 easytx = EasyTx(tx)
 
 #Connect to NeoKey object:

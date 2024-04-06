@@ -1,7 +1,7 @@
 #CelIRcom/Debug.py: Split out... so we don't have to load code.
 #-------------------------------------------------------------------------------
-from .Messaging import IRMsg32
-from .Protocols import IRProtocols
+from CelIRcom.Protocols import IRMsg32
+import CelIRcom.Protocols_PDE as PDE
 
 
 #=Helper functions
@@ -27,6 +27,6 @@ def display_IRMsg32(msg:IRMsg32, verbose=True):
         return
     if msg.prot.Nbits > 0:
         print(msg.str_bin())
-    if msg.prot is IRProtocols.NEC:
+    if msg.prot is PDE.IRProtocols.NEC:
         print("Overlaying to see complimentary pattern:")
         _printNECoverlay(msg.bits)

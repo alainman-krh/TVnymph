@@ -1,7 +1,8 @@
 #demos/PCnymph_IR2serial: 
 #-------------------------------------------------------------------------------
-from CelIRcom.Messaging import IRProtocols, IRMsg32
 from CelIRcom.Rx_pulseio import IRRx
+from CelIRcom.Protocols import IRMsg32
+import CelIRcom.Protocols_PDE as PDE
 import board
 
 
@@ -14,11 +15,11 @@ rx_pin = board.GP16 #RP2040 nano
 #===============================================================================
 rx = IRRx(rx_pin)
 #Mesages we will be detecting:
-rx.protocols_setactive([IRProtocols.NEC, IRProtocols.NECRPT])
+rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderNECRPT()])
 
 #Change identifier sent with each code (must match what PCnymph_macroremote expects)
-IRProtocols.NEC.id = "IR"
-IRProtocols.NECRPT.id = "IR-RPT"
+PDE.IRProtocols.NEC.id = "IR"
+PDE.IRProtocols.NECRPT.id = "IR-RPT"
 
 
 #=Main loop

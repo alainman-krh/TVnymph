@@ -1,7 +1,7 @@
 #EasyActuation/CelIRcom.py
 #-------------------------------------------------------------------------------
 from .Base import now_ms, ms_elapsed, clamp
-from CelIRcom.Messaging import IRMsg32
+from CelIRcom.Protocols import IRMsg32
 from CelIRcom.Tx import AbstractIRTx
 from time import sleep
 

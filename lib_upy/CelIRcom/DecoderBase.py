@@ -35,10 +35,22 @@ def pat2_validate(pat):
 
 #=Base class for decoders
 #===============================================================================
-class Decoder_Preamble2():
-    """Base class for decoders for protocols using a 2-pulse preamble."""
+class AbstractDecoder:
     def __init__(self, prot:AbstractIRProtocolDef):
         self.prot = prot #keep a reference
+
+    #Interface to be implemented
+#-------------------------------------------------------------------------------
+    #@abstractmethod #Doesn't exist
+    def preamble_detect_tickT(self, ptrainUS):
+        pass #Return: (tickUSm, istart_msg)
+    def msg_decode(self, ptrainK):
+        pass
+
+class Decoder_Preamble2(AbstractDecoder):
+    """Base class for decoders for protocols using a 2-pulse preamble."""
+    def __init__(self, prot:AbstractIRProtocolDef):
+        super().__init__(prot)
         tickT = prot.tickT #in usec
         MATCH_ABS = round(tickT*MATCH_RELTOL)
 
@@ -54,12 +66,11 @@ class Decoder_Preamble2():
     def preamble_detect_tickT(self, ptrainUS):
         pre_min = self.patTmin_pre; pre_max = self.patTmax_pre #Local alias
         NOMATCH = (0, 0)
-        N = len(ptrainUS)
         i = 0 #Index into ptrainUS[].
 
         #===Detect preamble
         Npre = len(pre_min)
-        if N < (i+Npre):
+        if len(ptrainUS) < (i+Npre):
             return NOMATCH
 
         Tpre = 0 #Accumulator: total preamble period
@@ -70,13 +81,7 @@ class Decoder_Preamble2():
             Tpre += pi
             i += 1
 
-        #===Extract ACTUAL pulse clock/unit period (tickT) from preamble
-        #   (use tickT it to update pulse pattern lenghts):
-        tickT = Tpre//self.Nticks_pre #TODO: SPEEDOPT mult+rshift
+        #===Extract ACTUAL (measured) pulse clock/unit period from preamble:
+        tickUSm = Tpre//self.Nticks_pre #TODO: SPEEDOPT mult+rshift
         istart_msg = i #Where actual message starts
-        return (tickT, istart_msg) #Will be non-zero if preamble detected
-
-    #Interface to be implemented
-#-------------------------------------------------------------------------------
-    #@abstractmethod #Doesn't exist
-    #def msg_decode(self, ptrainK:ptrain_ticks):
+        return (tickUSm, istart_msg) #Will be non-zero if preamble detected
