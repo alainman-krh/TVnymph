@@ -35,19 +35,20 @@
 # IR encoding types
 <!----------------------------------------------------------------------------->
 Listing what I find here... Not sure if names/aliases are correct, though.
+- ***Pulse-Distance Encoding (PDE)***: "pulse" width is the same for all
+  symbols, and trailing "space" width depends on the symbol being transmitted.
+  - AKA: "space encoding".
+- ***Pulse-Length Encoding (PLE)***: "pulse" width depends on symbol being
+  transmitted, and trailing "space" is of fixed width.
+  - AKA: "pulse encoding", "pulse-width encoding", "pulse-duration encoding".
+- ***Bi-Phase Encoding (BPE)***: Both symbols (representing either a 0 or 1 bit)
+  have fixed widths, but with opposite polarities. For example: A "mark-space"
+  pattern represents a 0 bit, whereas a "space-mark" pattern represents a 1 bit
+  (or vice-versa).
+  - AKA: "Manchester encoding"
 
 Good overview of encoding types:
 - <https://techdocs.altium.com/display/FPGA/Infrared+Communication+Concepts>
-
-- Pulse Distance Encoding (PDE) - AKA "Space Encoding": "pulse" width is the
-  same for all symbols, and trailing "space" width depends on the symbol being
-  transmitted.
-- Pulse Length Encoding (PLE) - AKA "Pulse Encoding": "pulse" width depends
-  on symbol being transmitted, and trailing "space" is of fixed width.
-- Manchester Encoding (ME) - AKA "Bi-Phase Encoding": Both symbols
-  (representing either a 0 or 1 bit) have fixed widths, but with opposite
-  polarities. For example: A "mark-space" pattern represents a 0 bit, whereas
-  a "space-mark" pattern represents a 1 bit (or vice-versa).
 
 # TODO
 <!----------------------------------------------------------------------------->
