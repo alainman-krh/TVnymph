@@ -1,4 +1,4 @@
-#TVnymph/TVnymph_inclAVrx: Typical example (this one controls an AV receiver).
+#TVnymph/TVnymph_livingroom1: Typical example (this one controls an AV receiver).
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -20,7 +20,7 @@ i2c_bus = board.I2C() #use default I2C bus (NeoKey)
 
 #=Main config: Messages
 #===============================================================================
-#Mesages we will be using:
+#Messages we will be using:
 class MSG_TV: #Namespace (Samsung TV)
     PROT = PDE.IRProtocols.SAMSUNG
     RPT = PDE.IRMSG32_NECRPT #Special repeat message
