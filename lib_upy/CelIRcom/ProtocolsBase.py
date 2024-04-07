@@ -31,6 +31,9 @@ def ptrainK_build(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 
 
 #=Abstract definitions
 #===============================================================================
+class AbstractIRMessage:
+    pass
+
 class AbstractIRProtocolDef:
     def __init__(self, id, tickUS):
         self.id = id
@@ -38,13 +41,14 @@ class AbstractIRProtocolDef:
 
     #Implement interface:
 #-------------------------------------------------------------------------------
-    def encode(self, ptrainK, msg):
+    def encode(self, ptrainK, msg:AbstractIRMessage):
+        """Fill ptrainK with pulse pattern for transmitting msg (return number of pulses written)."""
         pass
 
 
 #=Message classes
 #===============================================================================
-class IRMsg32:
+class IRMsg32(AbstractIRMessage):
     """Up-to 32 bit messages"""
     def __init__(self, prot:AbstractIRProtocolDef, bits):
         self.prot = prot
