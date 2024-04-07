@@ -3,6 +3,7 @@
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
+import CelIRcom.Protocols_PLE as PLE
 from EasyActuation.CelIRcom import EasyTx
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
@@ -58,11 +59,11 @@ class MSG_RX: #Namespace (Yamaha RX-V475)
     INPUT_GAMEPC = HDMI3
 
 class MSG_BRAY: #Namespace
-    PROT = PDE.IRProtocols.NEC #NO: SONY
+    PROT = PLE.IRProtocols.SONY20
 
-    #Sony BluRay:
-    ON = None #IRMsg32(PROT, 0x0)
-    OFF = None #IRMsg32(PROT, 0x0)
+    #Sony BluRay (BDP-S1700):
+    ON = IRMsg32(PROT, 0x8B4B8)
+    OFF = IRMsg32(PROT, 0x0B4B8)
 
 
 #=OpMode
@@ -156,7 +157,7 @@ easykey = tuple(EasyNeoKey(neokey, idx=i) for i in range(4))
 #=Main loop
 #===============================================================================
 print("TVnymph: initialized")
-print("\nHI3") #Debug: see if code was uploaded
+print("\nHI8") #Debug: see if code was uploaded
 while True:
     for i in range(4): #Process all keys
         is_pressed = neokey[i]
