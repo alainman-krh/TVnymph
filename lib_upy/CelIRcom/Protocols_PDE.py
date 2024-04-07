@@ -1,6 +1,6 @@
 #CelIRcom/Protocols_PDE.py
 #-------------------------------------------------------------------------------
-from .Protocols import ptrain_ticks, AbstractIRProtocolDef, IRMsg32
+from .ProtocolsBase import ptrainK_build, AbstractIRProtocolDef, IRMsg32
 from .DecoderBase import Decoder_Preamble2, pat2_validate
 from micropython import const
 
@@ -18,9 +18,9 @@ class IRProtocolDef_PDE(AbstractIRProtocolDef):
         #msginterval_ms: Minimum time interval between start of repeated messages
         #Default: 32 code bits, 50% duty cycle at 38kHz.
         super().__init__(id, tickT) #in usec
-        self.pat_pre = ptrain_ticks(pre)
-        self.pat_post = ptrain_ticks(post)
-        self.pat_bit = (ptrain_ticks(_0), ptrain_ticks(_1))
+        self.pat_pre = ptrainK_build(pre)
+        self.pat_post = ptrainK_build(post)
+        self.pat_bit = (ptrainK_build(_0), ptrainK_build(_1))
         self.Nbits = Nbits
         self.f = f
         self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
@@ -42,7 +42,7 @@ class IRProtocolDef_PDE(AbstractIRProtocolDef):
         return N
 
     def encode(self, ptrainK, msg):
-        """Message->`ptrain_ticks` encoder."""
+        """Message->`ptrainK` encoder."""
         buf_add = IRProtocolDef_PDE._buf_add #Alias
         ptrainK[0] = 0 #Output buffer. Initialize "last" value
         N = 0 #Number of bits written to buffer

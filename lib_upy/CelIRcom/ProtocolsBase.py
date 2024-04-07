@@ -1,8 +1,7 @@
-#CelIRcom/Protocols.py
+#CelIRcom/ProtocolsBase.py
 #-------------------------------------------------------------------------------
 from micropython import const
 from array import array
-#import pwmio
 
 #Naming convention:
 #- patT: pulse pattern in time (typ. us)
@@ -24,13 +23,8 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocation of Rx
 
 #=Helper functions
 #===============================================================================
-def ptrain_ticks(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickT)
+def ptrainK_build(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickT)
     return array('b', a) #Store as byte arrays
-
-#TODO: Move to "pulseio"-specific module/file:
-def ptrain_pulseio(a): #Build array of pulse lengths (us)
-    #pulseio uses unsigned shorts. Cannot store signed values (exception). Cannot store MAXUSHORT into short either.
-    return array('H', a) #Unsigned short: at least 2 bytes
 
 
 #=Abstract definitions

@@ -1,13 +1,13 @@
 #CelIRcom/TRxBase.py: Base definitions for IR transmitters/receivers
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, ptrain_ticks, IRMsg32
+from .ProtocolsBase import PulseCount_Max, ptrainK_build, IRMsg32
 from .DecoderBase import ptrainUS_build, AbstractDecoder
 from .Timebase import now_ms
 from micropython import const
 import gc
 
 #TODO: use .readinto()
-#TODO: Create/re-use TX buffer ptrain_native[PulseCount_Max]
+#TODO: Create/re-use TX buffer ptrainUS_build[PulseCount_Max]
 
 #Naming convention:
 #- tickUSm: Tick period (us) - measured.
@@ -58,7 +58,7 @@ class AbstractIRTx:
     def __init__(self):
         self.tx_start = now_ms() #ms
         self.tx_complete = now_ms() #ms
-        self.ptrainK = ptrain_ticks((0,)*PulseCount_Max.PACKET) #Buffer
+        self.ptrainK = ptrainK_build((0,)*PulseCount_Max.PACKET) #Buffer
 
     #---------------------------------------------------------------------------
     def ptrain_sendnative(self, ptrainNat):
@@ -88,7 +88,7 @@ class AbstractIRRx:
     def __init__(self):
         doneMS = 20 #(ms) Period of inactivity used to detect end of message transmission.
         self.doneUS = doneMS * 1_000 #Code needs us: Cache-it!
-        self.ptrainK_buf = ptrain_ticks(range(PulseCount_Max.PACKET+5)) #NOALLOC
+        self.ptrainK_buf = ptrainK_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
         self.ptrainT_buf = ptrainUS_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
         self.ptrainUS_last = memoryview(self.ptrainT_buf)[:0] #Needs to be updated
 
@@ -109,7 +109,7 @@ class AbstractIRRx:
         ptrainK = msg_sample(self.ptrainK_buf, ptrainUS, tickUSm, istart_msg, self.doneUS)
         if ptrainK is None:
             return None
-        #print("sampled", ptrain_ticks(ptrainK)) #Must build `ptrain_ticks` to print
+        #print("sampled", ptrainK_build(ptrainK)) #Must make new object (copy) to print
         msg_bits = decoder.msg_decode(ptrainK)
         if msg_bits is None:
             return None

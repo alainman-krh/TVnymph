@@ -1,15 +1,34 @@
-#CelIRcom/Rx_pulseio.py: IR receiver for `pulseio` backend
+#CelIRcom/TRx_pulseio.py: IR receiver for `pulseio` backend
 #-------------------------------------------------------------------------------
-from .Protocols import PulseCount_Max, ptrain_ticks, IRMSG_TMAX_MS
-from .Protocols import ptrain_pulseio as ptrain_native #Native... for this decoder
+from .ProtocolsBase import PulseCount_Max, IRMSG_TMAX_MS
 from .DecoderBase import ptrainUS_build
 from .Timebase import now_ms, ms_elapsed, ms_addwrap
-from .TRxBase import AbstractIRRx
+from .TRxBase import AbstractIRTx, AbstractIRRx
 from micropython import const
 import pulseio
 import gc
 
 #TODO: use .readinto()
+#TODO: Create/re-use buffer ptrainUS_build[PulseCount_Max] (NOALLOC)
+
+
+#=IRTx
+#===============================================================================
+class IRTx(AbstractIRTx):
+    def __init__(self, pin, prot):
+        super().__init__()
+        self.io_configure(pin, prot)
+
+    def io_configure(self, pin, prot):
+        #pulseio transmitter:
+        self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
+
+    def ptrain_buildnative(self, ptrainK, tickT):
+        #Convert ptrainK to a format usable by `PulseOut`:
+        return ptrainUS_build(abs(p)*tickT for p in ptrainK) #TODO: NOALLOC
+
+    def _ptrain_sendnative_immediate(self, ptrainNat):
+        self.piotx.send(ptrainNat)
 
 
 #=IRRx
@@ -84,7 +103,7 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
        
         #TODO: only copy until first doneUS event??? Right now: assume user calls sufficiently often.
         ptrain_us = self._hwbuf_popnext()
-        #ptrain_us = ptrain_native(buf[i] for i in range(N)) #Quickly copy - TODO: NOALLOC
+        #ptrain_us = ptrainUS_build(buf[i] for i in range(N)) #Quickly copy - TODO: NOALLOC
         #self.reset() #Ready for next message
         gc.collect() #Should help
         return ptrain_us

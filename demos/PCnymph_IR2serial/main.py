@@ -1,7 +1,7 @@
 #demos/PCnymph_IR2serial: 
 #-------------------------------------------------------------------------------
-from CelIRcom.Rx_pulseio import IRRx
-from CelIRcom.Protocols import IRMsg32
+from CelIRcom.TRx_pulseio import IRRx
+from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 import board
 

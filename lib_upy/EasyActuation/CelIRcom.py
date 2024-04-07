@@ -1,7 +1,7 @@
 #EasyActuation/CelIRcom.py
 #-------------------------------------------------------------------------------
 from .Base import now_ms, ms_elapsed, clamp
-from CelIRcom.Protocols import IRMsg32
+from CelIRcom.ProtocolsBase import IRMsg32
 from CelIRcom.TRxBase import AbstractIRTx
 from time import sleep
 
@@ -9,7 +9,7 @@ from time import sleep
 #=EasyTx
 #===============================================================================
 class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
-    def __init__(self, tx:AbstractIRTx): #irtx: CelIRcom.IRTx
+    def __init__(self, tx:AbstractIRTx):
         self.tx = tx
 
     def msg_send(self, msg:IRMsg32, tadjust=0):

@@ -1,6 +1,6 @@
 #CelIRcom/DecoderBase.py: Base definition to IR message decoders
 #-------------------------------------------------------------------------------
-from .Protocols import ptrain_ticks, AbstractIRProtocolDef
+from .ProtocolsBase import ptrainK_build, AbstractIRProtocolDef
 from array import array
 from micropython import const
 
@@ -23,7 +23,7 @@ def pat2_validate(pat):
     #Check for algorithms that only support symbols made from a pair (2) of mark-space pulses
     N = len(pat)
     if 0 == N:
-        return ptrain_ticks((1, -1)) #Fill with something
+        return ptrainK_build((1, -1)) #Fill with something
     if N != NPULSE_SYMB:
         raise Exception("Only pos-neg patterns supported")
     for i in range(N):

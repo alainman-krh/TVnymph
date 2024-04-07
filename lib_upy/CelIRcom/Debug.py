@@ -1,6 +1,6 @@
 #CelIRcom/Debug.py: Split out... so we don't have to load code.
 #-------------------------------------------------------------------------------
-from CelIRcom.Protocols import IRMsg32
+from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 
 
