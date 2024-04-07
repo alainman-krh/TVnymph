@@ -90,7 +90,7 @@ class IRProtocols:
     #...but protocol can actually be represented with IRProtocolDef_PDE
     SONY = IRProtocolDef_PDE("Sony", tickT=600,
         pre=(4, -1), post=tuple(), _0=(2, -1), _1=(1, -1),
-        Nbits=32, f=40_000, duty=1/4, msginterval_ms=45
+        Nbits=12, f=40_000, duty=1/4, msginterval_ms=45
         #TMSG<25ms: Pulse train lasts < (5+3*12)*tickT
     )
 
