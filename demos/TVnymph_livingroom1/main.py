@@ -18,9 +18,8 @@ tx_pin = board.D12 #Metro RP2040
 i2c_bus = board.I2C() #use default I2C bus (NeoKey)
 
 
-#=Main config: Messages
+#=IR message definitions (captured from remote controls)
 #===============================================================================
-#Messages we will be using:
 class MSG_TV: #Namespace (Samsung TV)
     PROT = PDE.IRProtocols.SAMSUNG
     RPT = PDE.IRMSG32_NECRPT #Special repeat message
@@ -66,14 +65,14 @@ class MSG_BRAY: #Namespace
     OFF = IRMsg32(PROT, 0x0B4B8)
 
 
-#=OpMode
+#=IRSequence
 #===============================================================================
-class OpMode:
+class IRSequence:
     def __init__(self, id, ctrlseq):
         self.id = id
         self.ctrlseq = ctrlseq
 
-    def activate(self, irtx:EasyTx):
+    def execute(self, irtx:EasyTx):
         print(f"Switching to mode: {self.id}")
         for step in self.ctrlseq:
             if step is None:
@@ -88,23 +87,23 @@ class OpMode:
         print(f"Mode switch complete: {self.id}")
 
 
-#=Operating modes
+#=Configuration sequences for different "operating modes"
 #===============================================================================
 TWAIT_POWERON = 5 #Long enough for TV/RX/etc to recieve signals (but not too long)
 #RX messages need to be run twice
-OPMODE_OFF = OpMode("OFF",
+CONFIG_OFF = IRSequence("OFF",
     (
         MSG_RX.OFF, MSG_RX.OFF, 0.1, MSG_TV.OFF, 0.1, MSG_BRAY.OFF, 0.1,
     )
 )
-OPMODE_SAT = OpMode("SAT",
+CONFIG_SAT = IRSequence("SAT",
     (
         MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.INPUT_SAT, 0.1,
         MSG_RX.INPUT_TVAUDIO, MSG_RX.INPUT_TVAUDIO, 0.1,
     )
 )
-OPMODE_BRAY = OpMode("Blu-ray",
+CONFIG_BRAY = IRSequence("Blu-ray",
     #Not 4K. Might as well connect through RX.
     (
         MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, 0.1, MSG_BRAY.ON, TWAIT_POWERON,
@@ -112,7 +111,7 @@ OPMODE_BRAY = OpMode("Blu-ray",
         MSG_RX.INPUT_BRAY, MSG_RX.INPUT_BRAY, 0.1,
     )
 )
-OPMODE_GAMEPC = OpMode("Gaming PC",
+CONFIG_GAMEPC = IRSequence("Gaming PC",
     #Connected to RX directly to get discrete-channel surround (PC games rarely generate Dolby mix).
     #No IR reciever to turn on/off PC at the moment :(.
     (
@@ -130,15 +129,15 @@ OPMODE_GAMEPC = OpMode("Gaming PC",
 #- HTPC: Home theatre PC
 
 
-#=Main config
+#=Keypad controls
 #===============================================================================
-KEYPAD_MODEASSIGN = (
-    OPMODE_OFF, OPMODE_SAT, OPMODE_BRAY, OPMODE_GAMEPC
+KEYPAD_TASKASSIGN = (
+    CONFIG_OFF, CONFIG_SAT, CONFIG_BRAY, CONFIG_GAMEPC
 )
 
 #Colors we will be using:
 NEOPIXEL_OFF = 0x0
-KEYPAD_COLORS = ( #NeoPixel colors assoicated with each NeoKey:
+KEYPAD_COLORASSIGN = ( #NeoPixel colors associated with each NeoKey:
     0xFF0000, 0xFFFF00, 0x00FF00, 0x00FFFF
 )
 
@@ -157,15 +156,15 @@ easykey = tuple(EasyNeoKey(neokey, idx=i) for i in range(4))
 #=Main loop
 #===============================================================================
 print("TVnymph: initialized")
-print("\nHI8") #Debug: see if code was uploaded
+print("\nHI0") #Debug: see if code was uploaded
 while True:
     for i in range(4): #Process all keys
         is_pressed = neokey[i]
-        color = KEYPAD_COLORS[i] if is_pressed else NEOPIXEL_OFF
+        color = KEYPAD_COLORASSIGN[i] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[i] = color
 
         sig = easykey[i].signals_detect() #Check only once per loop
         if sig == BtnSig.PRESS:
-            mode = KEYPAD_MODEASSIGN[i]
-            mode.activate(easytx)
+            irsequence = KEYPAD_TASKASSIGN[i]
+            irsequence.execute(easytx)
 #Last line
