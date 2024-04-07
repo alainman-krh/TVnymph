@@ -21,7 +21,8 @@ def msg_sample(ptrainK_buf, ptrainUS, tickUSm, istart_msg, doneUS): #Sample `ptr
     N = len(ptrainUS)
     i = istart_msg
 
-    Tleft = tickUSm>>1 #centers "sampling circuitry" to half bit period before next pulse
+    Tmid = tickUSm>>1 #Used to "center sampling circuitry" 1/2 period before next pulse
+    Tleft = Tmid #Initial "centering"
 
     #==Sample pulsetrain:
     buf = ptrainK_buf; ibuf = 0
@@ -32,10 +33,16 @@ def msg_sample(ptrainK_buf, ptrainUS, tickUSm, istart_msg, doneUS): #Sample `ptr
 
         #Measure pulse duration (# of unit periods) by counting # tickUSm present
         Tleft += ptrainUS[i]
+        #print(i, Tleft, "(newpulse)") #DEBUG: CLOCKDRIFT
         Npulse = 0
         while Tleft > tickUSm:
             Npulse += 1
             Tleft -= tickUSm
+        #print(i, Tleft, Npulse) #DEBUG: CLOCKDRIFT
+        #Some remotes seem to experience signficant "clock drift". Compensate:
+        if abs(Tleft - Tmid) < (Tmid >> 2): #If we are only "slightly" off ideal...
+            #print(i, Tleft, f"(recenter=>{Tmid})") #DEBUG: CLOCKDRIFT
+            Tleft = Tmid #Re-center (adjust sampling time/phase)
         if Npulse < 1:
             return NOMATCH
         if sgn < 0:
@@ -86,7 +93,8 @@ class AbstractIRTx:
 #===============================================================================
 class AbstractIRRx:
     def __init__(self):
-        doneMS = 20 #(ms) Period of inactivity used to detect end of message transmission.
+        doneMS = 10 #(ms) Period of inactivity used to detect end of message transmission.
+        #Had problems with doneMS=20ms... seems too long for Sony. 10ms seems low though (similar to preamble pulses)
         self.doneUS = doneMS * 1_000 #Code needs us: Cache-it!
         self.ptrainK_buf = ptrainK_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
         self.ptrainT_buf = ptrainUS_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
