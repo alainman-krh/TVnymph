@@ -18,19 +18,28 @@ rx_pin = board.GP16 #RP2040 nano
 #=Main config
 #===============================================================================
 rx = IRRx(rx_pin)
-rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderNECRPT()])
+rx.decoders_setactive([
+    PDE.DecoderNEC(), PDE.DecoderNECRPT(), PDE.DecoderSamsung(),
+    PDE.DecoderSony(),
+])
 
 
 #=Helper functions
 #===============================================================================
 def display_message_info(rx:IRRx, msg:IRMsg32, tmsg):
+    ptrain_last = rx.ptrainUS_getlast() #Assumes `msg` was *just* decoded from rx (not a while ago)
+    N = len(ptrain_last)
     if msg is None:
-        print("No message decoded!")
+        print("\nMessage could not be decoded!")
+        if N > 0:
+            print(f"Raw message (len={N}):")
+            print(ptrain_last)
         return
+
     print(f"\nIR message detected: {msg.prot.id}")
     displaytime_verbose("---> approx time", tmsg)
-    print("Raw message:")
-    print(rx.ptrainUS_getlast()) #Assumes `msg` was just decoded from rx
+    print(f"Raw message (len={N}):")
+    print(ptrain_last)
     display_IRMsg32(msg)
 
 
@@ -46,7 +55,7 @@ print("=====TEST DONE=====")
 #=Main loop
 #===============================================================================
 print("IR: ready to receive!")
-print("\nHI2")
+print("\nHI1")
 while True:
     t0 = now_ms()
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one
@@ -54,4 +63,6 @@ while True:
     if msg != None:
         display_message_info(rx, msg, t0)
         print("readtime:", ms_elapsed(t0, t1))
+    elif len(rx.ptrainUS_last) > 0:
+        display_message_info(rx, msg, t0)
     #endif

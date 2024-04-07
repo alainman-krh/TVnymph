@@ -22,7 +22,7 @@ def ptrainUS_build(a): #Build array of pulse lengths (us)
 def pat2_validate(pat):
     #Check for algorithms that only support symbols made from a pair (2) of mark-space pulses
     N = len(pat)
-    if 0 == N:
+    if 0 == N: #Special case: 0/1 match on NEC-RPT: technically has nothing... but want to avoid crash
         return ptrainK_build((1, -1)) #Fill with something
     if N != NPULSE_SYMB:
         raise Exception("Only pos-neg patterns supported")

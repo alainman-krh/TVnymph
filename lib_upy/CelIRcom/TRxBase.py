@@ -99,6 +99,9 @@ class AbstractIRRx:
 
 #-------------------------------------------------------------------------------
     def decoders_setactive(self, decoder_list):
+        for d in decoder_list:
+            if not issubclass(d.__class__, AbstractDecoder):
+                raise Exception(f"Error in `decoder_list`: `{d}` not a ::AbstractDecoder.")
         self.decoders = decoder_list
 
 #-------------------------------------------------------------------------------
@@ -128,6 +131,7 @@ class AbstractIRRx:
         return None
 
     def msg_read(self): #Non-blocking
+        self.ptrainUS_last = memoryview(self.ptrainT_buf)[:0]
         ptrainUS = self.ptrain_readnonblock()
         if ptrainUS is None:
             return None

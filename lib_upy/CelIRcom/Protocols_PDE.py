@@ -71,20 +71,27 @@ class IRProtocols:
     #             (start-to-start) for "repeats" to be detected.
     NEC = IRProtocolDef_PDE("NEC", tickT=1125//2, #Regular NEC messages
         pre=(16, -8), post=(1, -1), _0=(1, -1), _1=(1, -3),
-        Nbits=32, f=38000, duty=1/4, msginterval_ms=110
+        Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
         #Due to complementary nature of signal:
         #TMSG=68ms: Pulse train should always last 121*tickT
     )
     NECRPT = IRProtocolDef_PDE("NEC-RPT", tickT=1125//2, #NEC "Protocol" for special repeat message
         pre=(16, -4), post=(1, -1), _0=tuple(), _1=tuple(),
-        Nbits=0, f=38000, duty=1/4, msginterval_ms=110 #No bits to transmit here
+        Nbits=0, f=38_000, duty=1/4, msginterval_ms=110 #No bits to transmit here
         #TMSG=12ms: Pulse train lasts 21*tickT
     )
     #SAMSUNG: Basically NEC, but with shorter preamble.
     SAMSUNG = IRProtocolDef_PDE("Samsung", tickT=1125//2, #Regular NEC messages... almost
         pre=(8, -8), post=(1, -1), _0=(1, -1), _1=(1, -3), #Different start bits
-        Nbits=32, f=38000, duty=1/4, msginterval_ms=110
+        Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
         #Not sure if Samsung respects complementary/redundant pattern
+    )
+    #SONY: Technically pulse-length encoding (PLE)... and the preamble is a single pulse
+    #...but protocol can actually be represented with IRProtocolDef_PDE
+    SONY = IRProtocolDef_PDE("Sony", tickT=600,
+        pre=(4, -1), post=tuple(), _0=(2, -1), _1=(1, -1),
+        Nbits=32, f=40_000, duty=1/4, msginterval_ms=45
+        #TMSG<25ms: Pulse train lasts < (5+3*12)*tickT
     )
 
 #=Special messages
@@ -99,7 +106,9 @@ class Decoder_PDE(Decoder_Preamble2):
     def __init__(self, prot:IRProtocolDef_PDE):
         super().__init__(prot) #
         self.patK_symb = (pat2_validate(prot.pat_bit[0]), pat2_validate(prot.pat_bit[1])) #Symbol (0/1) pattern
-        self.patK_post = pat2_validate(prot.pat_post)
+        self.patK_post = prot.pat_post #In case no postamble
+        if len(prot.pat_post) > 0: #Assuming there is a postamble
+            self.patK_post = pat2_validate(prot.pat_post)
         self.Nsymbols_msg = prot.Nbits #Expected # of symbols for a complete message
         #TODO: support msginterval_ms?
 
@@ -144,7 +153,9 @@ class Decoder_PDE(Decoder_Preamble2):
         #==Extract postamble:
         patK_post = self.patK_post
         ppat_meas = ptrainKview[i:(i+2)]
-        match = self._match2(patK_post, ppat_meas)
+        match = True
+        if len(patK_post) > 0: #Some protocols don't have postamble
+            match = self._match2(patK_post, ppat_meas)
         if not match:
             return NOMATCH
         return msg
@@ -158,5 +169,7 @@ def DecoderNECRPT():
     return Decoder_PDE(IRProtocols.NECRPT)
 def DecoderSamsung():
     return Decoder_PDE(IRProtocols.SAMSUNG)
+def DecoderSony():
+    return Decoder_PDE(IRProtocols.SONY)
 
 #Last line
