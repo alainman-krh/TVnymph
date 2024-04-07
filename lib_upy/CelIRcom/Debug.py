@@ -27,6 +27,6 @@ def display_IRMsg32(msg:IRMsg32, verbose=True):
         return
     if msg.prot.Nbits > 0:
         print(msg.str_bin())
-    if msg.prot is PDE.IRProtocols.NEC:
+    if msg.prot in (PDE.IRProtocols.NEC, PDE.IRProtocols.SAMSUNG):
         print("Overlaying to see complimentary pattern:")
         _printNECoverlay(msg.bits)
