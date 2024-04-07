@@ -48,24 +48,27 @@ class AbstractDecoder:
     def msg_decode(self, ptrainK):
         pass
 
+
+#=Decoder_Preamble2: Many protocols have a 2-pulse preamble
+#===============================================================================
 class Decoder_Preamble2(AbstractDecoder):
     """Base class for decoders for protocols using a 2-pulse preamble."""
     def __init__(self, prot:AbstractIRProtocolDef):
         super().__init__(prot)
-        tickT = prot.tickT #in usec
-        MATCH_ABS = round(tickT*MATCH_RELTOL)
+        tickUS = prot.tickUS #in usec
+        MATCH_ABS = round(tickUS*MATCH_RELTOL)
 
-        #Compute/store min/max pulse pattern widths:
-        tpat_pre = pat2_validate(prot.pat_pre)
-        tickT_min = tickT - MATCH_ABS
-        self.patTmin_pre = ptrainUS_build(abs(_ticks)*tickT_min for _ticks in tpat_pre)
-        tickT_max = tickT + MATCH_ABS
-        self.patTmax_pre = ptrainUS_build(abs(_ticks)*tickT_max for _ticks in tpat_pre)
-        self.Nticks_pre = abs(tpat_pre[0]) + abs(tpat_pre[1])
+        #Compute/store (cached) min/max pulse pattern widths:
+        patK_pre = pat2_validate(prot.pat_pre)
+        tickUS_min = tickUS - MATCH_ABS
+        self.patUSmin_pre = ptrainUS_build(abs(_ticks)*tickUS_min for _ticks in patK_pre)
+        tickUS_max = tickUS + MATCH_ABS
+        self.patUSmax_pre = ptrainUS_build(abs(_ticks)*tickUS_max for _ticks in patK_pre)
+        self.Nticks_pre = abs(patK_pre[0]) + abs(patK_pre[1])
 
 #-------------------------------------------------------------------------------
     def preamble_detect_tickT(self, ptrainUS):
-        pre_min = self.patTmin_pre; pre_max = self.patTmax_pre #Local alias
+        pre_min = self.patUSmin_pre; pre_max = self.patUSmax_pre #Local alias
         NOMATCH = (0, 0)
         i = 0 #Index into ptrainUS[].
 

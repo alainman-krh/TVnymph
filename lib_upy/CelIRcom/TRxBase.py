@@ -80,12 +80,12 @@ class AbstractIRTx:
         #NOTE: ptrain can be any format most practical for a given implementation
         N = msg.prot.encode(self.ptrainK, msg)
         ptrainK = memoryview(self.ptrainK)[:N]
-        ptrainNat = self.ptrain_buildnative(ptrainK, msg.prot.tickT)
+        ptrainNat = self.ptrain_buildnative(ptrainK, msg.prot.tickUS)
         return self.ptrain_sendnative(ptrainNat)
 
     #Implement interface:
     #---------------------------------------------------------------------------
-    #def ptrain_buildnative(self, ptrainK, tickT):
+    #def ptrain_buildnative(self, ptrainK, tickUS):
     #def _ptrain_sendnative_immediate(self, ptrainNat):
 
 
@@ -97,8 +97,8 @@ class AbstractIRRx:
         #Had problems with doneMS=20ms... seems too long for Sony. 10ms seems low though (similar to preamble pulses)
         self.doneUS = doneMS * 1_000 #Code needs us: Cache-it!
         self.ptrainK_buf = ptrainK_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
-        self.ptrainT_buf = ptrainUS_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
-        self.ptrainUS_last = memoryview(self.ptrainT_buf)[:0] #Needs to be updated
+        self.ptrainUS_buf = ptrainUS_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
+        self.ptrainUS_last = memoryview(self.ptrainUS_buf)[:0] #Needs to be updated
 
 #-------------------------------------------------------------------------------
     def ptrainUS_getlast(self):
@@ -139,7 +139,7 @@ class AbstractIRRx:
         return None
 
     def msg_read(self): #Non-blocking
-        self.ptrainUS_last = memoryview(self.ptrainT_buf)[:0]
+        self.ptrainUS_last = memoryview(self.ptrainUS_buf)[:0]
         ptrainUS = self.ptrain_readnonblock()
         if ptrainUS is None:
             return None

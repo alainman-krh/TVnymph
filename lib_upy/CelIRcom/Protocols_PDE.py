@@ -14,10 +14,10 @@ NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of 
 #===============================================================================
 class IRProtocolDef_PDE(AbstractIRProtocolDef):
     """Pulse distance encoding (Default algorithm: 1 symbol -> 2 pulses)"""
-    def __init__(self, id, tickT, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
+    def __init__(self, id, tickUS, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
         #msginterval_ms: Minimum time interval between start of repeated messages
         #Default: 32 code bits, 50% duty cycle at 38kHz.
-        super().__init__(id, tickT) #in usec
+        super().__init__(id, tickUS) #in usec
         self.pat_pre = ptrainK_build(pre)
         self.pat_post = ptrainK_build(post)
         self.pat_bit = (ptrainK_build(_0), ptrainK_build(_1))
@@ -69,29 +69,29 @@ class IRProtocolDef_PDE(AbstractIRProtocolDef):
 class IRProtocols:
     #NEC WARNING: Protocol appears to expect exactly (-ish) 110ms interval
     #             (start-to-start) for "repeats" to be detected.
-    NEC = IRProtocolDef_PDE("NEC", tickT=1125//2, #Regular NEC messages
+    NEC = IRProtocolDef_PDE("NEC", tickUS=1125//2, #Regular NEC messages
         pre=(16, -8), post=(1, -1), _0=(1, -1), _1=(1, -3),
         Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
         #Due to complementary nature of signal:
-        #TMSG=68ms: Pulse train should always last 121*tickT
+        #TMSG=68ms: Pulse train should always last 121*tickUS
     )
-    NECRPT = IRProtocolDef_PDE("NEC-RPT", tickT=1125//2, #NEC "Protocol" for special repeat message
+    NECRPT = IRProtocolDef_PDE("NEC-RPT", tickUS=1125//2, #NEC "Protocol" for special repeat message
         pre=(16, -4), post=(1, -1), _0=tuple(), _1=tuple(),
         Nbits=0, f=38_000, duty=1/4, msginterval_ms=110 #No bits to transmit here
-        #TMSG=12ms: Pulse train lasts 21*tickT
+        #TMSG=12ms: Pulse train lasts 21*tickUS
     )
     #SAMSUNG: Basically NEC, but with shorter preamble.
-    SAMSUNG = IRProtocolDef_PDE("Samsung", tickT=1125//2, #Regular NEC messages... almost
+    SAMSUNG = IRProtocolDef_PDE("Samsung", tickUS=1125//2, #Regular NEC messages... almost
         pre=(8, -8), post=(1, -1), _0=(1, -1), _1=(1, -3), #Different start bits
         Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
         #Not sure if Samsung respects complementary/redundant pattern
     )
     #SONY: Technically pulse-length encoding (PLE)... and the preamble is a single pulse
     #...but protocol can actually be represented with IRProtocolDef_PDE
-    SONY = IRProtocolDef_PDE("Sony", tickT=600,
+    SONY = IRProtocolDef_PDE("Sony", tickUS=600,
         pre=(4, -1), post=tuple(), _0=(2, -1), _1=(1, -1),
         Nbits=12, f=40_000, duty=1/4, msginterval_ms=45
-        #TMSG<25ms: Pulse train lasts < (5+3*12)*tickT
+        #TMSG<25ms: Pulse train lasts < (5+3*12)*tickUS
     )
 
 #=Special messages
@@ -102,7 +102,7 @@ IRMSG32_NECRPT = IRMsg32(IRProtocols.NECRPT, 0)
 #=IR message decoder for protocols adhering to IRProtocolDef_PDE
 #===============================================================================
 class Decoder_PDE(Decoder_Preamble2):
-    """`ptrainT` decoder for protocols adhering to IRProtocolDef_PDE."""
+    """`ptrainK` decoder for protocols adhering to IRProtocolDef_PDE."""
     def __init__(self, prot:IRProtocolDef_PDE):
         super().__init__(prot) #
         self.patK_symb = (pat2_validate(prot.pat_bit[0]), pat2_validate(prot.pat_bit[1])) #Symbol (0/1) pattern

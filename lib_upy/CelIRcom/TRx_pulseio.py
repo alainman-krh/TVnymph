@@ -23,9 +23,9 @@ class IRTx(AbstractIRTx):
         #pulseio transmitter:
         self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
 
-    def ptrain_buildnative(self, ptrainK, tickT):
+    def ptrain_buildnative(self, ptrainK, tickUS):
         #Convert ptrainK to a format usable by `PulseOut`:
-        return ptrainUS_build(abs(p)*tickT for p in ptrainK) #TODO: NOALLOC
+        return ptrainUS_build(abs(p)*tickUS for p in ptrainK) #TODO: NOALLOC
 
     def _ptrain_sendnative_immediate(self, ptrainNat):
         self.piotx.send(ptrainNat)
@@ -54,8 +54,8 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
     def _hwbuf_popnext(self):
         #Assumption: We have detected a full message exists... or timeout.
         bufin = self.hwbuf
-        bufout = self.ptrainT_buf
-        N = len(self.ptrainT_buf) - 1 #Don't go over... keep 1 to add fake ending (space-"pulse")
+        bufout = self.ptrainUS_buf
+        N = len(self.ptrainUS_buf) - 1 #Don't go over... keep 1 to add fake ending (space-"pulse")
         doneUS = self.doneUS #Cache-it
         i = 0
         while i < N:

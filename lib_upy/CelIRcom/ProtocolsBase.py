@@ -4,9 +4,11 @@ from micropython import const
 from array import array
 
 #Naming convention:
-#- patT: pulse pattern in time (typ. us)
-#- patK: pulse pattern in "tick count" (each spanning tickT)
-#- tickT: Tick period (us)
+#- tickUS: Tick period in usec
+#- patK: pulse pattern in "tick count" (each spanning tickUS)
+#- patUS: pulse pattern in usec
+#- ptrainK: pulse train (array) in "tick count"
+#- ptrainUS: pulse train (array) in usec
 
 
 #=Constants
@@ -23,16 +25,16 @@ class PulseCount_Max: #Namespace: Maximum number of pulses (pre-allocation of Rx
 
 #=Helper functions
 #===============================================================================
-def ptrainK_build(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickT)
+def ptrainK_build(a): #Build array: # of pulse ticks for a symbol (1 tick lasts 1 tickUS)
     return array('b', a) #Store as byte arrays
 
 
 #=Abstract definitions
 #===============================================================================
 class AbstractIRProtocolDef:
-    def __init__(self, id, tickT):
+    def __init__(self, id, tickUS):
         self.id = id
-        self.tickT = tickT 
+        self.tickUS = tickUS 
 
     #Implement interface:
 #-------------------------------------------------------------------------------
