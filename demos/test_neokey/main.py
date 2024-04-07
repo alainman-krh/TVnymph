@@ -3,7 +3,7 @@
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
-from EasyActuation.CelIRcom import EasyTx
+from CelIRcom.EasyTx import EasyTx
 from EasyActuation.Buttons import EasyNeoKey
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from array import array
@@ -32,7 +32,6 @@ KEYPAD_COLORS = ( #NeoPixel colors assoicated with each NeoKey:
 #Inter-message timing
 #-------------------------------------------------------------------------------
 TPROC_KEYPAD = 60 #ms: Adjust for keypad processing between MSG_RPT
-TADJ_RPT = TPROC_KEYPAD #ms: Adjust for loop delays between MSG_RPT
 
 #IO config
 #-------------------------------------------------------------------------------
@@ -63,10 +62,10 @@ while True:
         pulsetrain = easytx.msg_send(MSG_VOLDN)
         #Neokey takes about 12ms/key to process.
         #(Extra 12ms*4keys breaks timing for 1st NEC "repeat" message)
-        pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT) #Immediately send 1st repeat to maintin timing
+        pulsetrain = easytx.msg_send(MSG_RPT) #Immediately send 1st repeat to maintain timing (button scans are slow)
         #print("FIRST") #Likely breaks timing for repeats
     elif sig == btn_voldn.SIG.HOLD:
-        pulsetrain = easytx.msg_send(MSG_RPT, tadjust=TADJ_RPT)
+        pulsetrain = easytx.msg_send(MSG_RPT)
         trigger_led = True #Could theoretically send pulse to LED and meet timing
         #print("RPT") #Likely breaks timing for repeats
 

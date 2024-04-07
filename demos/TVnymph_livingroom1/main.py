@@ -4,7 +4,7 @@ from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 import CelIRcom.Protocols_PLE as PLE
-from EasyActuation.CelIRcom import EasyTx
+from CelIRcom.EasyTx import EasyTx, IRSequence
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from time import sleep
@@ -65,35 +65,13 @@ class MSG_BRAY: #Namespace
     OFF = IRMsg32(PROT, 0x0B4B8)
 
 
-#=IRSequence
-#===============================================================================
-class IRSequence:
-    def __init__(self, id, ctrlseq):
-        self.id = id
-        self.ctrlseq = ctrlseq
-
-    def execute(self, irtx:EasyTx):
-        print(f"Switching to mode: {self.id}")
-        for step in self.ctrlseq:
-            if step is None:
-                continue
-
-            T = type(step)
-            if T in (int, float):
-                tsleep = step
-                sleep(tsleep)
-            elif T == IRMsg32:
-                irtx.msg_send(step)
-        print(f"Mode switch complete: {self.id}")
-
-
 #=Configuration sequences for different "operating modes"
 #===============================================================================
 TWAIT_POWERON = 5 #Long enough for TV/RX/etc to recieve signals (but not too long)
 #RX messages need to be run twice
 CONFIG_OFF = IRSequence("OFF",
     (
-        MSG_RX.OFF, MSG_RX.OFF, 0.1, MSG_TV.OFF, 0.1, MSG_BRAY.OFF, 0.1,
+        MSG_RX.OFF, MSG_RX.OFF, 0.1, MSG_TV.OFF, 0.1, MSG_BRAY.OFF, MSG_BRAY.OFF, 0.1,
     )
 )
 CONFIG_SAT = IRSequence("SAT",
@@ -106,7 +84,7 @@ CONFIG_SAT = IRSequence("SAT",
 CONFIG_BRAY = IRSequence("Blu-ray",
     #Not 4K. Might as well connect through RX.
     (
-        MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, 0.1, MSG_BRAY.ON, TWAIT_POWERON,
+        MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, 0.1, MSG_BRAY.ON, MSG_BRAY.ON, TWAIT_POWERON,
         MSG_TV.INPUT_RX, 0.1,
         MSG_RX.INPUT_BRAY, MSG_RX.INPUT_BRAY, 0.1,
     )
@@ -166,5 +144,7 @@ while True:
         sig = easykey[i].signals_detect() #Check only once per loop
         if sig == BtnSig.PRESS:
             irsequence = KEYPAD_TASKASSIGN[i]
-            irsequence.execute(easytx)
+            print(f"Switching to mode: {irsequence.id}")
+            easytx.execute(irsequence)
+            print(f"Mode switch complete: {irsequence.id}")
 #Last line
