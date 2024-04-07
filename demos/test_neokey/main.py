@@ -67,10 +67,10 @@ while True:
     elif sig == btn_voldn.SIG.HOLD:
         pulsetrain = easytx.msg_send(MSG_RPT)
         trigger_led = True #Could theoretically send pulse to LED and meet timing
-        #print("RPT") #Likely breaks timing for repeats
+        print("RPT") #Likely breaks timing for repeats
 
     trigger_led = False
-    if trigger_led:
+    if trigger_led and pulsetrain != None:
         #WARN: Sending pulse on LED takes time.
         #(Likely will keep IR:MSG_RPT from working as intended)
         txled.ptrain_sendnative(pulsetrain) #Mirror onto LED

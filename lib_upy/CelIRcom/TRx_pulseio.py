@@ -1,6 +1,6 @@
 #CelIRcom/TRx_pulseio.py: IR receiver for `pulseio` backend
 #-------------------------------------------------------------------------------
-from .ProtocolsBase import PulseCount_Max, IRMSG_TMAX_MS
+from .ProtocolsBase import PulseCount_Max, IRMSG_TMAX_MS, AbstractIRProtocolDef
 from .DecoderBase import ptrainUS_build
 from .Timebase import now_ms, ms_elapsed, ms_addwrap
 from .TRxBase import AbstractIRTx, AbstractIRRx
@@ -15,11 +15,11 @@ import gc
 #=IRTx
 #===============================================================================
 class IRTx(AbstractIRTx):
-    def __init__(self, pin, prot):
+    def __init__(self, pin, prot:AbstractIRProtocolDef):
         super().__init__()
         self.io_configure(pin, prot)
 
-    def io_configure(self, pin, prot):
+    def io_configure(self, pin, prot:AbstractIRProtocolDef):
         #pulseio transmitter:
         self.piotx = pulseio.PulseOut(pin, frequency=prot.f, duty_cycle=prot.duty_int16)
 

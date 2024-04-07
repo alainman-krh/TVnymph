@@ -14,16 +14,14 @@ NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of 
 #===============================================================================
 class IRProtocolDef_PDE(AbstractIRProtocolDef):
     """Pulse distance encoding (Default algorithm: 1 symbol -> 2 pulses)"""
-    def __init__(self, id, tickUS, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msgintervalMS=0):
+    def __init__(self, id, tickUS, pre, post, _0, _1, Nbits=32, f=38_000, duty=1/4, msgintervalMS=0):
         #msgintervalMS: Minimum time interval between start of repeated messages
-        #Default: 32 code bits, 50% duty cycle at 38kHz.
-        super().__init__(id, tickUS) #in usec
+        #Default: 32 code bits, 25% duty cycle at 38kHz.
+        super().__init__(id, tickUS, f, duty)
         self.pat_pre = ptrainK_build(pre)
         self.pat_post = ptrainK_build(post)
         self.pat_bit = (ptrainK_build(_0), ptrainK_build(_1))
         self.Nbits = Nbits
-        self.f = f
-        self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
         self.msgintervalMS = msgintervalMS
 
     #Encoding is simple... we'll do it here (Also more convenient when sending messages):

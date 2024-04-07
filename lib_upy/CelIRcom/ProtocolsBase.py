@@ -35,9 +35,13 @@ class AbstractIRMessage:
     pass
 
 class AbstractIRProtocolDef:
-    def __init__(self, id, tickUS):
+    def __init__(self, id, tickUS, f, duty):
+        """f: Carrier frequency"""
         self.id = id
-        self.tickUS = tickUS 
+        self.tickUS = tickUS
+        self.f = f
+        self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
+
 
     #Implement interface:
 #-------------------------------------------------------------------------------
