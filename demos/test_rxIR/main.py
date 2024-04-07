@@ -3,6 +3,7 @@
 from CelIRcom.TRx_pulseio import IRRx, ptrainUS_build
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
+import CelIRcom.Protocols_PLE as PLE
 from CelIRcom.Timebase import now_ms, ms_elapsed
 from CelIRcom.Debug import display_IRMsg32, displaytime_verbose
 from time import sleep
@@ -19,8 +20,9 @@ rx_pin = board.GP16 #RP2040 nano
 #===============================================================================
 rx = IRRx(rx_pin)
 rx.decoders_setactive([
-    PDE.DecoderNEC(), PDE.DecoderNECRPT(), PDE.DecoderSamsung(),
-    PDE.DecoderSony(),
+    PDE.DecoderNEC(), PDE.DecoderNECRPT(),
+    PDE.DecoderSamsung(),
+    PLE.DecoderSony12(), PLE.DecoderSony20(),
 ])
 
 
@@ -55,7 +57,7 @@ print("=====TEST DONE=====")
 #=Main loop
 #===============================================================================
 print("IR: ready to receive!")
-print("\nHI1")
+print("\nHI4")
 while True:
     t0 = now_ms()
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one

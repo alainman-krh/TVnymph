@@ -1,4 +1,4 @@
-#CelIRcom/Protocols_PDE.py
+#CelIRcom/Protocols_PDE.py: Pulse-distance encoding
 #-------------------------------------------------------------------------------
 from .ProtocolsBase import ptrainK_build, AbstractIRProtocolDef, IRMsg32
 from .DecoderBase import Decoder_Preamble2, pat2_validate
@@ -14,8 +14,8 @@ NPULSE_SYMB = const(2) #Algorithm only supports symbols made from a pair (2) of 
 #===============================================================================
 class IRProtocolDef_PDE(AbstractIRProtocolDef):
     """Pulse distance encoding (Default algorithm: 1 symbol -> 2 pulses)"""
-    def __init__(self, id, tickUS, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msginterval_ms=0):
-        #msginterval_ms: Minimum time interval between start of repeated messages
+    def __init__(self, id, tickUS, pre, post, _0, _1, Nbits=32, f=38000, duty=1/4, msgintervalMS=0):
+        #msgintervalMS: Minimum time interval between start of repeated messages
         #Default: 32 code bits, 50% duty cycle at 38kHz.
         super().__init__(id, tickUS) #in usec
         self.pat_pre = ptrainK_build(pre)
@@ -24,7 +24,7 @@ class IRProtocolDef_PDE(AbstractIRProtocolDef):
         self.Nbits = Nbits
         self.f = f
         self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
-        self.msginterval_ms = msginterval_ms
+        self.msgintervalMS = msgintervalMS
 
     #Encoding is simple... we'll do it here (Also more convenient when sending messages):
 #-------------------------------------------------------------------------------
@@ -71,27 +71,20 @@ class IRProtocols:
     #             (start-to-start) for "repeats" to be detected.
     NEC = IRProtocolDef_PDE("NEC", tickUS=1125//2, #Regular NEC messages
         pre=(16, -8), post=(1, -1), _0=(1, -1), _1=(1, -3),
-        Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
+        Nbits=32, f=38_000, duty=1/4, msgintervalMS=110
         #Due to complementary nature of signal:
         #TMSG=68ms: Pulse train should always last 121*tickUS
     )
     NECRPT = IRProtocolDef_PDE("NEC-RPT", tickUS=1125//2, #NEC "Protocol" for special repeat message
         pre=(16, -4), post=(1, -1), _0=tuple(), _1=tuple(),
-        Nbits=0, f=38_000, duty=1/4, msginterval_ms=110 #No bits to transmit here
+        Nbits=0, f=38_000, duty=1/4, msgintervalMS=110 #No bits to transmit here
         #TMSG=12ms: Pulse train lasts 21*tickUS
     )
     #SAMSUNG: Basically NEC, but with shorter preamble.
     SAMSUNG = IRProtocolDef_PDE("Samsung", tickUS=1125//2, #Regular NEC messages... almost
         pre=(8, -8), post=(1, -1), _0=(1, -1), _1=(1, -3), #Different start bits
-        Nbits=32, f=38_000, duty=1/4, msginterval_ms=110
+        Nbits=32, f=38_000, duty=1/4, msgintervalMS=110
         #Not sure if Samsung respects complementary/redundant pattern
-    )
-    #SONY: Technically pulse-length encoding (PLE)... and the preamble is a single pulse
-    #...but protocol can actually be represented with IRProtocolDef_PDE
-    SONY = IRProtocolDef_PDE("Sony", tickUS=600,
-        pre=(4, -1), post=tuple(), _0=(2, -1), _1=(1, -1),
-        Nbits=12, f=40_000, duty=1/4, msginterval_ms=45
-        #TMSG<25ms: Pulse train lasts < (5+3*12)*tickUS
     )
 
 #=Special messages
@@ -110,7 +103,7 @@ class Decoder_PDE(Decoder_Preamble2):
         if len(prot.pat_post) > 0: #Assuming there is a postamble
             self.patK_post = pat2_validate(prot.pat_post)
         self.Nsymbols_msg = prot.Nbits #Expected # of symbols for a complete message
-        #TODO: support msginterval_ms?
+        #TODO: support msgintervalMS?
 
 #-------------------------------------------------------------------------------
     @staticmethod
@@ -151,12 +144,13 @@ class Decoder_PDE(Decoder_Preamble2):
             return NOMATCH
 
         #==Extract postamble:
-        patK_post = self.patK_post
-        ppat_meas = ptrainKview[i:(i+2)]
         match = True
+        patK_post = self.patK_post
         if len(patK_post) > 0: #Some protocols don't have postamble
+            ppat_meas = ptrainKview[i:(i+2)]
             match = self._match2(patK_post, ppat_meas)
-        if not match:
+            i += NPULSE_SYMB
+        if (not match) or (i != N): #Should have read EVERYTHING... and matched
             return NOMATCH
         return msg
 
@@ -169,7 +163,5 @@ def DecoderNECRPT():
     return Decoder_PDE(IRProtocols.NECRPT)
 def DecoderSamsung():
     return Decoder_PDE(IRProtocols.SAMSUNG)
-def DecoderSony():
-    return Decoder_PDE(IRProtocols.SONY)
 
 #Last line
