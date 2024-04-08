@@ -59,6 +59,9 @@ class MSG_RX: #Namespace (Yamaha RX-V475)
 
 class MSG_BRAY: #Namespace
     PROT = PLE.IRProtocols.SONY20
+    #Looks like Sony20 protocol expects the messages to be transmitted 3 times:
+    #2nd time: 45 ms after the previous. 3rd time: 125ms after the previous.
+    #"OFF" message appears to be more likely to ignore badly timed sequences
 
     #Sony BluRay (BDP-S1700):
     ON = IRMsg32(PROT, 0x8B4B8)
@@ -71,31 +74,31 @@ TWAIT_POWERON = 5 #Long enough for TV/RX/etc to recieve signals (but not too lon
 #RX messages need to be run twice
 CONFIG_OFF = IRSequence("OFF",
     (
-        MSG_RX.OFF, MSG_RX.OFF, 0.1, MSG_TV.OFF, 0.1, MSG_BRAY.OFF, MSG_BRAY.OFF, 0.1,
+        MSG_RX.OFF, MSG_RX.OFF, 0.2, MSG_TV.OFF, 0.2, MSG_BRAY.OFF, MSG_BRAY.OFF, 0.125, MSG_BRAY.OFF, 0.2,
     )
 )
 CONFIG_SAT = IRSequence("SAT",
     (
-        MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, TWAIT_POWERON,
-        MSG_TV.INPUT_SAT, 0.1,
-        MSG_RX.INPUT_TVAUDIO, MSG_RX.INPUT_TVAUDIO, 0.1,
+        MSG_RX.ON, MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
+        MSG_TV.INPUT_SAT, 0.2,
+        MSG_RX.INPUT_TVAUDIO, MSG_RX.INPUT_TVAUDIO, 0.2,
     )
 )
 CONFIG_BRAY = IRSequence("Blu-ray",
     #Not 4K. Might as well connect through RX.
     (
-        MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, 0.1, MSG_BRAY.ON, MSG_BRAY.ON, TWAIT_POWERON,
-        MSG_TV.INPUT_RX, 0.1,
-        MSG_RX.INPUT_BRAY, MSG_RX.INPUT_BRAY, 0.1,
+        MSG_RX.ON, MSG_RX.ON, 0.2, MSG_TV.ON, 0.2, MSG_BRAY.ON, MSG_BRAY.ON, TWAIT_POWERON,
+        MSG_TV.INPUT_RX, 0.2,
+        MSG_RX.INPUT_BRAY, MSG_RX.INPUT_BRAY, 0.2,
     )
 )
 CONFIG_GAMEPC = IRSequence("Gaming PC",
     #Connected to RX directly to get discrete-channel surround (PC games rarely generate Dolby mix).
     #No IR reciever to turn on/off PC at the moment :(.
     (
-        MSG_RX.ON, MSG_RX.ON, 0.1, MSG_TV.ON, TWAIT_POWERON,
-        MSG_TV.INPUT_RX, MSG_TV.INPUT_RX, 0.1,
-        MSG_RX.INPUT_GAMEPC, MSG_RX.INPUT_GAMEPC, 0.1,
+        MSG_RX.ON, MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
+        MSG_TV.INPUT_RX, MSG_TV.INPUT_RX, 0.2,
+        MSG_RX.INPUT_GAMEPC, MSG_RX.INPUT_GAMEPC, 0.2,
     )
 )
 
@@ -134,7 +137,7 @@ easykey = tuple(EasyNeoKey(neokey, idx=i) for i in range(4))
 #=Main loop
 #===============================================================================
 print("TVnymph: initialized")
-print("\nHI0") #Debug: see if code was uploaded
+print("\nHI3") #Debug: see if code was uploaded
 while True:
     for i in range(4): #Process all keys
         is_pressed = neokey[i]

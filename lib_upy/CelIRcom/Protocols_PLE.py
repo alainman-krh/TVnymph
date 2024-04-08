@@ -11,7 +11,7 @@ class IRProtocols:
     #...but protocol can actually be represented with IRProtocolDef_PDE
     SONY20 = IRProtocolDef_PLE("Sony20", tickUS=600,
         pre=(4, -1), post=tuple(), _0=(2, -1), _1=(1, -1),
-        Nbits=20, f=40_000, duty=1/4, msgintervalMS=85 #Have no clue about interval. Put something reasonable.
+        Nbits=20, f=40_000, duty=1/4, msgintervalMS=45 #Have no clue about interval. Put something reasonable.
         #TMSG<65ms: Pulse train lasts < (5+3*20)*tickUS
     )
     SONY12 = IRProtocolDef_PLE("Sony12", tickUS=600,

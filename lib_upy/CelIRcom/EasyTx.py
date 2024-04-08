@@ -22,14 +22,15 @@ class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
         self.tx = tx
         self.tx_start_last = now_ms()
 
-    def msg_send(self, msg:IRMsg32):
-        #Wait `msgintervalMS` between sending messages:
-        msgintervalMS = msg.prot.msgintervalMS
+    def msg_send(self, msg:IRMsg32, intervalMS=None):
+        #Wait `intervalMS` between sending messages:
+        if intervalMS is None:
+            intervalMS = msg.prot.msgintervalMS
         elapsed = ms_elapsed(self.tx_start_last, now_ms())
-        tleft_ms = msgintervalMS - elapsed
-        #print("msgintervalMS", msgintervalMS); print("tleft_ms", tleft_ms) #DEBUG
+        tleft_ms = intervalMS - elapsed
+        #print("intervalMS", intervalMS); print("tleft_ms", tleft_ms) #DEBUG
         #Simplest just to sleep to reach next optimal transmit time:
-        sleep(clamp(tleft_ms, 0, msgintervalMS)*0.001) #clamp: safety against lockup
+        sleep(clamp(tleft_ms, 0, intervalMS)*0.001) #clamp: safety against lockup
 
         tx = self.tx
         #t0 = now_ms()
@@ -41,6 +42,7 @@ class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
 
 #-------------------------------------------------------------------------------
     def execute(self, seq:IRSequence):
+        intervalMS = None
         for step in seq.ctrlseq:
             if step is None:
                 continue
@@ -48,9 +50,11 @@ class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
             T = type(step)
             if T in (int, float):
                 tsleep = step
-                sleep(tsleep)
+                intervalMS = round(tsleep*1_000)
+                #sleep(tsleep) #No. Not precise enough
             elif T == IRMsg32:
-                self.msg_send(step)
+                self.msg_send(step, intervalMS)
+                intervalMS = None #Reset (will use default)
         return
 
 #Last line
