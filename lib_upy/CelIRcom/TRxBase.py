@@ -99,6 +99,7 @@ class AbstractIRRx:
         self.ptrainK_buf = ptrainK_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
         self.ptrainUS_buf = ptrainUS_build(range(PulseCount_Max.PACKET+5)) #NOALLOC
         self.ptrainUS_last = memoryview(self.ptrainUS_buf)[:0] #Needs to be updated
+        self.decodesuccessful_last = False
 
 #-------------------------------------------------------------------------------
     def ptrainUS_getlast(self):
@@ -138,15 +139,28 @@ class AbstractIRRx:
         gc.collect() #Should help
         return None
 
+#-------------------------------------------------------------------------------
     def msg_read(self): #Non-blocking
         self.ptrainUS_last = memoryview(self.ptrainUS_buf)[:0]
+        self.decodesuccessful_last = False
         ptrainUS = self.ptrain_readnonblock()
         if ptrainUS is None:
             return None
         self.ptrainUS_last = memoryview(ptrainUS)
         #print(ptrainUS_build(ptrainUS))
         msg = self.msg_decode_any(ptrainUS)
+        self.decodesuccessful_last = (msg != None)
         return msg
+
+#-------------------------------------------------------------------------------
+    def msg_detected(self, onlydecoded=True):
+        """True if SOME message was detected last time `.msg_read()` was called
+        - onlydecoded: `False` will accept messages that couldn't be decoded.
+        """
+        detected = self.decodesuccessful_last
+        if not onlydecoded:
+            detected |= (len(self.ptrainUS_last) > 0)
+        return detected
 
     #Implement interface:
     #---------------------------------------------------------------------------

@@ -47,7 +47,7 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
 
     def reset(self): #reset recieve queue, ignoring any signal before
         self.hwbuf.clear()
-        self.msg_detected = False
+        self.msgstart_detected = False
         self.msg_estTstart = now_ms() #Estimated start time
 
 #-------------------------------------------------------------------------------
@@ -76,12 +76,12 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
         if len(bufin) < 1:
             #Don't fully self.reset()... in case pulseio "thread" added a pulse since checked len().
             self.msg_estTstart = now_ms()
-            self.msg_detected = False
+            self.msgstart_detected = False
         else:
             #Can't really figure out when the "next" message really started (timers saturate)
             #... so let's assume it starts now (We mostly want to avoid keeping stale data in buffers)
             self.msg_estTstart = now_ms()
-            self.msg_detected = True
+            self.msgstart_detected = True
         return memoryview(bufout)[:i]
 
 #-------------------------------------------------------------------------------
@@ -92,9 +92,9 @@ class IRRx(AbstractIRRx): #Implementation for `pulseio` backend.
             return None #No signal yet
 
         now = now_ms()
-        if not self.msg_detected:
+        if not self.msgstart_detected:
             self.msg_estTstart = now #Hopefully wasn't that long ago.
-            self.msg_detected = True
+            self.msgstart_detected = True
 
         msg_avail = (ms_elapsed(self.msg_estTstart, now) > self.msgmaxMS)
         msg_avail = msg_avail or (buf[N-1] >= self.doneUS)
