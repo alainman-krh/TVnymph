@@ -18,8 +18,8 @@ rx = IRRx(rx_pin)
 rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderNECRPT()])
 
 #Change identifier sent with each code (must match what PCnymph_macroremote expects)
-PDE.IRProtocols.NEC.id = "IR"
-PDE.IRProtocols.NECRPT.id = "IR-RPT"
+PDE.IRProtocols.NEC.id = "IRNEC"
+PDE.IRProtocols.NECRPT.id = "IRNEC-RPT"
 
 
 #=Main loop
@@ -27,5 +27,6 @@ PDE.IRProtocols.NECRPT.id = "IR-RPT"
 while True:
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one
     if msg != None:
-        print(msg.str_hex(prefix="")) #Don't send "0x". Minimize data transmission
+        #print(msg.str_hex(prefix="")) #Don't send "0x". Minimize data transmission
+        print(msg.str_hex()) #DO send "0x".
     #endif
