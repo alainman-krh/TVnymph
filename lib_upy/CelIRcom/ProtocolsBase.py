@@ -57,7 +57,16 @@ class IRMsg32(AbstractIRMessage):
     def __init__(self, prot:AbstractIRProtocolDef, bits):
         self.prot = prot
         self.bits = bits #message/code bits
-    
+
+    def __eq__(self, value: object) -> bool:
+        if type(value) != IRMsg32:
+            return False
+        if self.prot != value.prot:
+            return False
+        if self.bits != value.bits:
+            return False
+        return True
+
     def str_hex(self, prefix="0x") -> str:
         Nbits = self.prot.Nbits
         Nhexdig = (Nbits+3)>>2

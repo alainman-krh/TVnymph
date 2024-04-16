@@ -6,9 +6,10 @@ TODO.
 <!----------------------------------------------------------------------------->
 `TVnymph` depends on libraries included in the "CircuitPython Library Bundle"
 found [HERE](https://circuitpython.org/libraries):
-- adafruit_neokey
-- adafruit_pixelbuf
-- neopixel
+- `adafruit_neokey`
+- `adafruit_pixelbuf`
+- `adafruit_hid`
+- `neopixel`
 
 Installing dependencies (required packages):
 1. Download "Library Bundle" corresponding to your version of CircuitPython.
