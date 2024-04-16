@@ -7,7 +7,6 @@ import CelIRcom.Protocols_PLE as PLE
 from CelIRcom.EasyTx import EasyTx, IRSequence
 from EasyActuation.Buttons import EasyNeoKey, BtnSig
 from adafruit_neokey.neokey1x4 import NeoKey1x4
-from time import sleep
 import board
 
 
