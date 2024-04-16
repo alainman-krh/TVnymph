@@ -1,19 +1,26 @@
 <!-- Reference-style links to make tables & lists more readable -->
 [CktPy]: <https://docs.circuitpython.org/en/latest>
 [RP2040]: <https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html>
+[pulseio]: <https://docs.circuitpython.org/en/latest/shared-bindings/pulseio/index.html>
 
 ## TVnymph
 <!----------------------------------------------------------------------------->
-Quickly reconfigures TV/AV setup for different purposes (satellite TV, net radio, etc).
+Quickly reconfigure your TV/AV setup for different purposes.
+- Watch satellite TV, listen to "net radio", watch your favorite blu-ray disc, etc.
+- You can even power down all your equipment with a single press of a button.
 
 NOTE:
-- `TVnymph` is actually a CircuitPython toolset that can be customized for any
-  TV/AV setup (and beyond!).
+- `TVnymph` is technically a CircuitPython toolset that can be customized to
+  control any TV/AV setup (and beyond!).
 
 # Demos
 <!----------------------------------------------------------------------------->
 Demos can be found here in the [`demos/` subdirectory](demos/):
-- `test_neokey`: Test IR control using NeoKey1x4 as input.
+- [`TVnymph_livingroom1`](demos/TVnymph_livingroom1/1-ABOUT.md): A fully-functional example of a `TVnymph` solution.
+- [`mediaRemote`](demos/mediaRemote/1-ABOUT.md): Turn your microcontroller board into a media remote receiver for your PC/Mac.
+- [`PCnymph_IR2serial`](demos/PCnymph_IR2serial/1-ABOUT.md): Turn your favorite IR remote into a macro pad for Windows.
+- [`test_neokey`](demos/test_neokey/1-ABOUT.md): Test IR control using NeoKey1x4 as input.
+- [`test_rxIR`](demos/test_rxIR/1-ABOUT.md): Test receiving/decoding IR signals.
 
 # How-To
 <!----------------------------------------------------------------------------->
@@ -25,9 +32,9 @@ Demos can be found here in the [`demos/` subdirectory](demos/):
 
 # Compatibility
 <!----------------------------------------------------------------------------->
-Circuit python platforms supporting the [`pulseio` library](https://docs.circuitpython.org/en/latest/shared-bindings/pulseio/index.html)
+Circuit python platforms supporting the [`pulseio` library][pulseio]
 (Expand section labelled ***"Available on these boards"***).
 
 Tested HW+SW platforms/combinations:
-- [RP2040] + [CktPy]-8.2.9
+- [RP2040] + [CktPy]-9.0.0
 
