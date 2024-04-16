@@ -6,15 +6,16 @@ Converts your favorite microcontroller board into an IR reciever module
 that connects/talks to the `PCnymph` program (see AVglue project).
 
 How?
-- Program captures IR signals, and relays a "IR 0xHEXCODE" signal compatible
+- Program captures IR signals, and relays a "IR\[PROTOCOL\] 0xHEXCODE"
+  signal compatible with the `PCnymph` program.
 
 # Provided/tested configuration
-- Configured for Raspberry Pi Pico RP2040 bord.
+- Configured for Raspberry Pi Pico RP2040 board.
 - Preset to relay any standard NEC IR controller signals through the
   serial connection on your microcontroller's USB port.
 
 # TODO
-- Make PCnymph program.
+- Make `PCnymph` program.
 - Currently called `samples/mediacontrol_applet`.
 - Not clear for user how things connect together.
 
