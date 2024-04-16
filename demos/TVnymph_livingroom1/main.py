@@ -1,4 +1,4 @@
-#TVnymph/TVnymph_livingroom1: Typical example (this one controls an AV receiver).
+#demos/TVnymph_livingroom1: Typical example (this one controls an AV receiver).
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
