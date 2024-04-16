@@ -12,7 +12,7 @@ DEST = "E:\\"
 #proj = joinpath("demos", "test_neokey")
 #proj = joinpath("demos", "PCnymph_IR2serial")
 #proj = joinpath("demos", "test_rxIR")
-proj = joinpath("demos", "mediaRemote_Adafruit")
+proj = joinpath("demos", "mediaRemote")
 refresh_libs = True
 
 #Copy code
