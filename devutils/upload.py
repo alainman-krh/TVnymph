@@ -9,10 +9,10 @@ _THIS_FILE = abspath(__file__); _THIS_DIR = dirname(_THIS_FILE); _THIS_REPO = di
 #-------------------------------------------------------------------------------
 DEST = "E:\\"
 #proj = joinpath("demos", "TVnymph_livingroom1")
-#proj = joinpath("demos", "test_neokey")
-#proj = joinpath("demos", "PCnymph_IR2serial")
-#proj = joinpath("demos", "test_IRRx")
 proj = joinpath("demos", "mediaRemote")
+#proj = joinpath("demos", "PCnymph_IR2serial")
+#proj = joinpath("demos", "test_neokey")
+#proj = joinpath("demos", "test_IRRx")
 refresh_libs = True
 
 #Copy code

@@ -4,36 +4,13 @@ from CelIRcom.TRx_pulseio import IRRx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 from CelIRcom.Timebase import now_ms, ms_elapsed
-from adafruit_hid.consumer_control_code import ConsumerControlCode as CCC
-from adafruit_hid.consumer_control import ConsumerControl
-from adafruit_hid.keyboard import Keyboard
-from adafruit_hid.keycode import Keycode
-import usb_hid
+from EasyActuation.USBHID_Keyboard import SeqKBD, SeqCC, Keycode, CCC
 import board
 
 
 #=Platform/build-dependent config
 #===============================================================================
 rx_pin = board.GP16 #RP2040 nano
-
-
-#=Classes
-#===============================================================================
-class KeySequence: #Common interface for Keyboard
-    def __init__(self, dev, signal_or_seq, release_has_args=True) -> None:
-        self.dev = dev
-        if type(signal_or_seq) is int:
-            signal_or_seq = (signal_or_seq,) #Make tuple
-        self.signal_or_seq = signal_or_seq
-
-        signal_or_seq_release = signal_or_seq
-        if not release_has_args:
-            signal_or_seq_release = tuple() #No args
-        self.signal_or_seq_release = signal_or_seq_release
-    def press(self):
-        self.dev.press(*self.signal_or_seq)
-    def release(self):
-        self.dev.release(*self.signal_or_seq_release)
 
 
 #=Main config
@@ -43,12 +20,6 @@ rx.decoders_setactive([
     PDE.DecoderNEC(), PDE.DecoderNECRPT(),
 ])
 MSG_INTERVALMS = round(PDE.IRProtocols.NEC.msgintervalMS * 1.5) #Pad tolerance on interval (don't ignore repeats due to slight mis-timings)
-kbd = Keyboard(usb_hid.devices)
-cc = ConsumerControl(usb_hid.devices)
-def SeqKBD(signal_or_seq): #Convenience constructor
-    return KeySequence(kbd, signal_or_seq)
-def SeqCC(signal_or_seq): #Convenience constructor
-    return KeySequence(cc, signal_or_seq, release_has_args=False)
 
 SIGNAL_MAP_ADAFRUIT = {
     0xFF6897: SeqKBD(Keycode.KEYPAD_ZERO), #0
@@ -85,7 +56,7 @@ signal_last_startMS = now_ms()
 #===============================================================================
 print("mediaRemote: ready to receive!")
 print(f"MSG_INTERVALMS = {MSG_INTERVALMS}ms")
-print("\nHI0")
+print("\nHI1")
 while True:
     signal_read_startMS = now_ms() #Proxy for start of message reception
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one
