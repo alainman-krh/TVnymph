@@ -1,4 +1,4 @@
-#demos/test_rxIR: Test receiving/decoding IR signals.
+#demos/mediaRemote: Turn your microcontroller board into a media remote receiver for your PC/Mac.
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRRx
 from CelIRcom.ProtocolsBase import IRMsg32

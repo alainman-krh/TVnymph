@@ -1,4 +1,4 @@
-#demos/test_rxIR: Test receiving/decoding IR signals.
+#demos/test_IRRx: Test receiving/decoding IR signals.
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRRx, ptrainUS_build
 from CelIRcom.ProtocolsBase import IRMsg32

@@ -20,7 +20,7 @@ Demos can be found here in the [`demos/` subdirectory](demos/):
 - [`mediaRemote`](demos/mediaRemote/1-ABOUT.md): Turn your microcontroller board into a media remote receiver for your PC/Mac.
 - [`PCnymph_IR2serial`](demos/PCnymph_IR2serial/1-ABOUT.md): Turn your favorite IR remote into a macro pad for Windows.
 - [`test_neokey`](demos/test_neokey/1-ABOUT.md): Test IR control using NeoKey1x4 as input.
-- [`test_rxIR`](demos/test_rxIR/1-ABOUT.md): Test receiving/decoding IR signals.
+- [`test_IRRx`](demos/test_IRRx/1-ABOUT.md): Test receiving/decoding IR signals.
 
 # How-To
 <!----------------------------------------------------------------------------->

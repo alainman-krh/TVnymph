@@ -1,4 +1,4 @@
-## `test_rxIR`: A CircuitPython project
+## `test_IRRx`: A CircuitPython project
 Test receiving/decoding/capturing IR signals and their associated HEX representation.
 
 # Features:
