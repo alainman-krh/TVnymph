@@ -3,7 +3,7 @@
 [RP2040]: <https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html>
 [pulseio]: <https://docs.circuitpython.org/en/latest/shared-bindings/pulseio/index.html>
 
-## TVnymph
+## TVnymph: A CircuitPython project
 <!----------------------------------------------------------------------------->
 Quickly reconfigure your TV/AV setup for different purposes.
 - Watch satellite TV, listen to "net radio", watch your favorite blu-ray disc, etc.

@@ -22,4 +22,4 @@ How?
 NOTE:
 - Pre-configured for NEC remotes.
 - Can re-configure for any protocol supported by `CelIRcom` lib.
-- Should work on any microcontroller supported by the MicroPython `pulseio` lib (not just RP2040).
+- Should work on any microcontroller supported by the CircuitPython `pulseio` lib (not just RP2040).
