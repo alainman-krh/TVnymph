@@ -8,7 +8,7 @@ Turn your microcontroller board into a media remote receiver for your PC/Mac.
 # Provided/tested configuration
 - Configured for Raspberry Pi Pico RP2040 board.
 - Preset to work with Adafruit mini remote control (ID 389).
+- Tested on Windows/Mac/Linux.
 
 # Comments
-- Not tested on Mac. Probably works (uses USB/HID interfae).
 - Should work on any microcontroller supported by the MicroPython `pulseio` lib (not just RP2040).
