@@ -1,5 +1,5 @@
-## `TVnymph_livingroom1`: A CircuitPython project
-Quickly reconfigure your TV/AV setup for different purposes.
+## `TVnymph_livingroom2`: A CircuitPython project
+Quickly reconfigure your TV/AV setup (TV+AV/RX+BRAY+PC) for different purposes.
 
 # Features:
 - Modifiable to use "any" IR remote/AV setup (supported by `CelIRcom` lib).

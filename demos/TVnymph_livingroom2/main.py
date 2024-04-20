@@ -1,4 +1,4 @@
-#demos/TVnymph_livingroom1: Typical example (this one controls an AV receiver).
+#demos/TVnymph_livingroom2: More complex example (TV+AV/RX+BRAY+PC).
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -56,13 +56,12 @@ class MSG_RX: #Namespace (Yamaha RX-V475)
     INPUT_BRAY = HDMI1
     INPUT_GAMEPC = HDMI3
 
-class MSG_BRAY: #Namespace
-    PROT = PLE.IRProtocols.SONY20
-    #Looks like Sony20 protocol expects the messages to be transmitted 3 times:
+class MSG_BRAY: #Namespace (Sony BDP-S1700)
+    #Looks like BDP-S1700 expects IR messages to be transmitted 3 times:
     #2nd time: 45 ms after the previous. 3rd time: 125ms after the previous.
-    #"OFF" message appears to be more likely to ignore badly timed sequences
+    #-"OFF" message appears to be more likely to ignore badly timed sequences.
+    PROT = PLE.IRProtocols.SONY20
 
-    #Sony BluRay (BDP-S1700):
     ON = IRMsg32(PROT, 0x8B4B8)
     OFF = IRMsg32(PROT, 0x0B4B8)
 
