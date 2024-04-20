@@ -1,4 +1,4 @@
-#demos/PCnymph_IR2serial: 
+#demos/PCnymph_IRRxClick: 
 #-------------------------------------------------------------------------------
 from CelIRcom.TRx_pulseio import IRRx
 from CelIRcom.ProtocolsBase import IRMsg32
