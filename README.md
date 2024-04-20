@@ -16,7 +16,8 @@ NOTE:
 # Demos
 <!----------------------------------------------------------------------------->
 Demos can be found here in the [`demos/` subdirectory](demos/):
-- [`TVnymph_livingroom1`](demos/TVnymph_livingroom1/1-ABOUT.md): A fully-functional example of a `TVnymph` solution.
+- [`TVnymph_livingroom1`](demos/TVnymph_livingroom1/1-ABOUT.md): A fully-functional example of a `TVnymph` solution (TV+SAT+BRAY).
+- [`TVnymph_livingroom2`](demos/TVnymph_livingroom2/1-ABOUT.md): A fully-functional example of a `TVnymph` solution (TV+AV/RX+BRAY+PC).
 - [`mediaRemote`](demos/mediaRemote/1-ABOUT.md): Turn your microcontroller board into a media remote receiver for your PC/Mac.
 - [`PCnymph_IRRxClick`](demos/PCnymph_IRRxClick/1-ABOUT.md): Turn your favorite IR remote into a macro pad for Windows.
 - [`test_neokey`](demos/test_neokey/1-ABOUT.md): Test IR control using NeoKey1x4 as input.
@@ -25,6 +26,7 @@ Demos can be found here in the [`demos/` subdirectory](demos/):
 # How-To
 <!----------------------------------------------------------------------------->
 1. [Install](docs/Install.md)
+1. [Finding IR-remote codes](docs/FindIRCodes.md)
 
 <!----------------------------------------------------------------------------->
 # [Known Issues/TODO](docs/KnownIssues.md)
