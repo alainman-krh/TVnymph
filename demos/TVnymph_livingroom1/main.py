@@ -36,7 +36,7 @@ class MSG_TV: #Namespace (LG UK6090PUA)
 
     #Aliases:
     INPUT_SAT = HDMI1
-    INPUT_BRAY = HDMI2
+    INPUT_BRAY = HDMI3
 
 #Satellite: Using a different protocol. Power toggle not found. Let's ignore!
 
@@ -61,16 +61,16 @@ CONFIG_OFF = IRSequence("OFF",
         MSG_TV.OFF, 0.2, MSG_BRAY.OFF, MSG_BRAY.OFF, 0.125, MSG_BRAY.OFF, 0.2,
     )
 )
-CONFIG_SAT = IRSequence("SAT",
+CONFIG_SAT = IRSequence("Satellite TV",
     (
         MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.INPUT_SAT, 0.2,
     )
 )
-CONFIG_NETFLIX = IRSequence("NETFLIX",
+CONFIG_NETFLIX = IRSequence("Netflix",
     (
         MSG_TV.ON, TWAIT_POWERON,
-        MSG_TV.INPUT_SAT, 0.2,
+        MSG_TV.STR_NETFLIX, 0.2,
     )
 )
 CONFIG_BRAY = IRSequence("Blu-ray",
