@@ -1,4 +1,4 @@
-#demos/test_neokey: Test IR control using NeoKey1x4 as input.
+#demos/test_IRTx_neokey: Test IRTx control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
 from EasyActuation.Buttons import EasyButton_EventHandler, EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
@@ -73,7 +73,7 @@ ez_neokey = EasyNeoKey_1x4(neokey, Handler_IRSend())
 
 #=Main loop
 #===============================================================================
-print("\nTVnymph/test_neokey: initialized")
+print("\nTVnymph/test_IRTx_neokey: initialized")
 print("HI0")
 while True:
     #Simplified way of 

@@ -60,8 +60,8 @@ print("=====TEST DONE=====")
 
 #=Main loop
 #===============================================================================
-print("IR: ready to receive!")
-print("\nHI0")
+print("\nTVnymph/test_IRRx: ready to receive!")
+print("HI0")
 while True:
     t0 = now_ms()
     msg:IRMsg32 = rx.msg_read() #Auto prints message when recieves one

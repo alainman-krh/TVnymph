@@ -1,5 +1,5 @@
-## `test_neokey`: A CircuitPython project
-Test IR control using NeoKey1x4 as input (using I2C).
+## `test_IRTx_neokey`: A CircuitPython project
+Test IRTx control using NeoKey1x4 as input (using I2C).
 
 Not particularly interesting. NeoKey is slow to communicate through I2C.
 Slow I2C communications causes timing difficulties sending out NEC-repeat messages.
