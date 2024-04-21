@@ -70,6 +70,7 @@ class MSG_BRAY: #Namespace (Sony BDP-S1700)
 #=Configuration sequences for different "operating modes"
 #===============================================================================
 TWAIT_POWERON = 5 #Long enough for TV/RX/etc to recieve signals (but not too long)
+TWAIT_POWERON_SKIP = 0.2 #Maximum wait time if we are skipping power-on
 #RX messages need to be run twice
 CONFIG_OFF = IRSequence("OFF",
     (
@@ -142,11 +143,19 @@ neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
 #=Buttons/Event handlers
 #===============================================================================
 class Handler_IRSend(EasyButton_EventHandler):
-    def handle_press(self, id):
-        irsequence = KEYPAD_TASKASSIGN[i]
-        print(f"Switching to mode: {irsequence.id}")
-        easytx.execute(irsequence)
+    def runseq(self, id, poweron_skip=False):
+        irsequence = KEYPAD_TASKASSIGN[id]
+        print(f"Switching to mode: {irsequence.id}")        
+        sleep_max = None
+        if poweron_skip:
+            sleep_max = TWAIT_POWERON_SKIP
+        easytx.execute(irsequence, sleep_max=sleep_max)
         print(f"Mode switch complete: {irsequence.id}")
+
+    def handle_press(self, id):
+        self.runseq(id, poweron_skip=True)
+    def handle_longpress(self, id):
+        self.runseq(id)
 ez_neokey = EasyNeoKey_1x4(neokey, Handler_IRSend())
 
 
