@@ -1,8 +1,9 @@
 #EasyActuation/Buttons.py
 #-------------------------------------------------------------------------------
 from adafruit_neokey.neokey1x4 import NeoKey1x4
-from .Base import now_ms
-from time import sleep
+from .Base import now_ms, ms_elapsed
+
+#TODO: Debounce
 
 
 #=Behavioural profiles
@@ -22,79 +23,107 @@ class Profiles:
     #TODO: Add more profiles!
 
 
-#=EasyButton
+#=EasyButton_EventHandler
 #===============================================================================
-class BtnState:
-    UP = 0 #Not pressed
-    DOWN = 1 #First pressed
+class EasyButton_EventHandler:
+    """Individual handlers are optionally implemented by user"""
+    def handle_press(self, id):
+        pass
+    def handle_longpress(self, id):
+        pass
+    def handle_doublepress(self, id):
+        pass
+    def handle_hold(self, id):
+        pass
+    def handle_release(self, id):
+        pass
 
-class BtnSig:
-    NONE = 0
-    PRESS = 1
-    HOLD = 2
-    RELEASE = 3
 
-
-#=EasyButton
+#=AbstractEasyButton
 #===============================================================================
-class EasyButton: #State machine (FSM) controlling interations with buttons
-    SIG = BtnSig #Alias
-
-    def __init__(self, profile=Profiles.DEFAULT):
-        self.state = BtnState.UP
+class AbstractEasyButton:
+    def __init__(self, eventhdlr:EasyButton_EventHandler, profile=Profiles.DEFAULT):
+        self.eventhdlr = eventhdlr
         self.profile = profile
-        self.last_press = now_ms()
-
-#Process events: Internal handlers
-#-------------------------------------------------------------------------------
-    def _process_up(self, pressed): #Called when BtnState.UP
-        if pressed:
-            self.last_press = now_ms()
-            self.state = BtnState.DOWN
-            return BtnSig.PRESS
-        return BtnSig.NONE
-
-    def _process_down(self, pressed): #Called when BtnState.DOWN
-        if pressed:
-            return BtnSig.HOLD
-        #Otherwise:
-        self.state = BtnState.UP
-        return BtnSig.RELEASE
-
-#Process events (depends on state)
-#-------------------------------------------------------------------------------
-    def process_events(self): #Also updates state (Typically: Only run once per loop)
-        laststate = self.state #Readability
-        pressed = self._physcan_ispressed()
-        if BtnState.DOWN == laststate:
-            sig = self._process_down(pressed)
-        else:
-            sig = self._process_up(pressed)
-        return sig
-
-    def signals_detect(self): #TODO: Deprecate
-        return self.process_events()
 
 #Hardware-specific methods
 #-------------------------------------------------------------------------------
     #@abstractmethod
-    def _physcan_ispressed(self): #Scan for raw button state
+    def _physcan_ispressed(self, id): #Scan HW for button state
         return False #Base class won't do anything at the moment
+    def process_events(self): #Concrete class should trigger state-machine here
+        pass
 
-#Application-specific event handlers:
+
+#=EasyButton_StateMachine
+#===============================================================================
+class EasyButton_StateMachine: #State machine (FSM) controlling interations with buttons
+    def __init__(self, btn:AbstractEasyButton, id=None):
+        self.btn = btn
+        self.id = id
+        self.pevents_currentstate = self._pevents_up
+        self.press_start = now_ms()
+
+#State-dependent (internal) event handlers
 #-------------------------------------------------------------------------------
-    #TODO
+    def _pevents_up(self, pressed):
+        now = now_ms()
+        eventhdlr = self.btn.eventhdlr
+        if pressed:
+            self.press_start = now
+            self.pevents_currentstate = self._pevents_press
+            eventhdlr.handle_press(self.id)
+
+    def _pevents_press(self, pressed): #Singlepress
+        now = now_ms()
+        eventhdlr = self.btn.eventhdlr
+        profile = self.btn.profile
+        if pressed:
+            elapsed = ms_elapsed(self.press_start, now)
+            if elapsed >= profile.LONGPRESS_MS:
+                self.pevents_currentstate = self._pevents_longpress
+                eventhdlr.handle_longpress(self.id)
+            eventhdlr.handle_hold(self.id)
+        else:
+            self.pevents_currentstate = self._pevents_up
+            eventhdlr.handle_release(self.id)
+
+    def _pevents_longpress(self, pressed):
+        eventhdlr = self.btn.eventhdlr
+        if pressed:
+            eventhdlr.handle_hold(self.id)
+        else:
+            self.pevents_currentstate = self._pevents_up
+            eventhdlr.handle_release(self.id)
+
+#Process button events
+#-------------------------------------------------------------------------------
+    def process_events(self):
+        """Also updates state (Typically: Only run once per loop)"""
+        pressed = self.btn._physcan_ispressed(self.id)
+        self.pevents_currentstate(pressed)
+
+    def signals_detect(self): #TODO: Deprecate
+        return self.process_events()
 
 
 #=EasyNeoKey
 #===============================================================================
-class EasyNeoKey(EasyButton):
-    def __init__(self, obj, idx):
-        super().__init__()
+class EasyNeoKey_1x4(AbstractEasyButton):
+    def __init__(self, obj:NeoKey1x4, eventhdlr:EasyButton_EventHandler, profile=Profiles.DEFAULT):
+        super().__init__(eventhdlr, profile)
+        self.statem_list = tuple(EasyButton_StateMachine(self, i) for i in range(4))
         self.obj = obj
-        self.idx = idx
 
-    def _physcan_ispressed(self):
-        return self.obj[self.idx]
+    def _physcan_ispressed(self, idx):
+        return self.obj[idx]
+
+    def process_events(self, idx=None):
+        """Also updates state (Typically: Only run once per loop)"""
+        if idx is None:
+            for m in self.statem_list:
+                m.process_events()
+            return
+        self.statem_list[idx].process_events()
 
 #Last line

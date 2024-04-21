@@ -1,20 +1,21 @@
 #demos/TVnymph_livingroom2: More complex example (TV+AV/RX+BRAY+PC).
 #-------------------------------------------------------------------------------
+from EasyActuation.Buttons import EasyButton_EventHandler, EasyNeoKey_1x4
+from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 import CelIRcom.Protocols_PLE as PLE
 from CelIRcom.EasyTx import EasyTx, IRSequence
-from EasyActuation.Buttons import EasyNeoKey, BtnSig
-from adafruit_neokey.neokey1x4 import NeoKey1x4
 import board
 
 
 #=Platform/build-dependent config
 #===============================================================================
-tx_pin = board.D12 #Metro RP2040
-#txled_pin = board.LED
-i2c_bus = board.I2C() #use default I2C bus (NeoKey)
+#Assume Metro RP2040:
+KEYPAD_ADDR = 0x30 #I2C address
+PIN_TX = board.D12
+BUS_I2C = board.I2C() #use default I2C bus (NeoKey)
 
 
 #=IR message definitions (captured from remote controls)
@@ -116,44 +117,48 @@ CONFIG_GAMEPC = IRSequence("Gaming PC",
 #- HTPC: Home theatre PC
 
 
-#=Keypad controls
+#=Main config
 #===============================================================================
-KEYPAD_TASKASSIGN = (
-    CONFIG_OFF, CONFIG_NETFLIX, CONFIG_GAMEPC, CONFIG_BRAY
-)
-
-#Colors we will be using:
+#NeoKey/Keypad configuration
 NEOPIXEL_OFF = 0x0
 KEYPAD_COLORASSIGN = ( #NeoPixel colors associated with each NeoKey:
     0xFF0000, 0xFFFF00, 0x00FF00, 0x00FFFF
+)
+KEYPAD_TASKASSIGN = (
+    CONFIG_OFF, CONFIG_NETFLIX, CONFIG_GAMEPC, CONFIG_BRAY
 )
 
 
 #=IO config
 #===============================================================================
 #Connect to IR diode & on-board LED:
-tx = IRTx(tx_pin, PDE.IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
-easytx = EasyTx(tx)
+tx = IRTx(PIN_TX, PDE.IRProtocols.NEC) #ISSUE: Can't switch between protocols (will use same freq, etc).
+easytx = EasyTx(tx) #Controls timing between message transmissions
 
 #Connect to NeoKey object:
-neokey = NeoKey1x4(i2c_bus, addr=0x30)
-easykey = tuple(EasyNeoKey(neokey, idx=i) for i in range(4))
+neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
+
+
+#=Buttons/Event handlers
+#===============================================================================
+class Handler_IRSend(EasyButton_EventHandler):
+    def handle_press(self, id):
+        irsequence = KEYPAD_TASKASSIGN[i]
+        print(f"Switching to mode: {irsequence.id}")
+        easytx.execute(irsequence)
+        print(f"Mode switch complete: {irsequence.id}")
+ez_neokey = EasyNeoKey_1x4(neokey, Handler_IRSend())
 
 
 #=Main loop
 #===============================================================================
-print("TVnymph: initialized")
-print("\nHI6") #Debug: see if code was uploaded
+print("\nTVnymph: initialized")
+print("HI2") #Debug: see if code was uploaded
 while True:
     for i in range(4): #Process all keys
         is_pressed = neokey[i]
         color = KEYPAD_COLORASSIGN[i] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[i] = color
 
-        sig = easykey[i].signals_detect() #Check only once per loop
-        if sig == BtnSig.PRESS:
-            irsequence = KEYPAD_TASKASSIGN[i]
-            print(f"Switching to mode: {irsequence.id}")
-            easytx.execute(irsequence)
-            print(f"Mode switch complete: {irsequence.id}")
+        ez_neokey.process_events(i) #Only one key per loop iteration
 #Last line
