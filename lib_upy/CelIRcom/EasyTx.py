@@ -41,7 +41,8 @@ class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
         return pulses
 
 #-------------------------------------------------------------------------------
-    def execute(self, seq:IRSequence):
+    def execute(self, seq:IRSequence, sleep_max=None):
+        """- sleep_max: Convenient way to skip long sequences waiting for equipment to power on"""
         intervalMS = None
         for step in seq.ctrlseq:
             if step is None:
@@ -50,6 +51,8 @@ class EasyTx: #State machine (FSM) helping to schedule outgoing IR messages
             T = type(step)
             if T in (int, float):
                 tsleep = step
+                if sleep_max != None:
+                    tsleep = min(sleep_max, tsleep)
                 intervalMS = round(tsleep*1_000)
                 #sleep(tsleep) #No. Not precise enough
             elif T == IRMsg32:
