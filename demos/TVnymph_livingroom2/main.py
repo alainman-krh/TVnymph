@@ -35,7 +35,7 @@ class MSG_TV: #Namespace (Samsung TV)
     #Aliases:
     INPUT_RX = HDMI1
     INPUT_HTPC = HDMI2
-    INPUT_SAT = HDMI3
+    INPUT_APPLETV = HDMI3
 
 class MSG_RX: #Namespace (Yamaha RX-V475)
     PROT = PDE.IRProtocols.NEC
@@ -77,10 +77,16 @@ CONFIG_OFF = IRSequence("OFF",
         MSG_RX.OFF, 0.2, MSG_TV.OFF, 0.2, MSG_BRAY.OFF, MSG_BRAY.OFF, 0.125, MSG_BRAY.OFF, 0.2,
     )
 )
-CONFIG_SAT = IRSequence("SAT",
+CONFIG_NETFLIX = IRSequence("Netflix",
+    (
+        MSG_TV.ON, TWAIT_POWERON,
+        MSG_TV.STR_NETFLIX, 0.2,
+    )
+)
+CONFIG_APPLETV = IRSequence("Apple TV",
     (
         MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
-        MSG_TV.INPUT_SAT, 0.2,
+        MSG_TV.INPUT_APPLETV, 0.2,
         MSG_RX.INPUT_TVAUDIO, 0.2,
     )
 )
@@ -113,7 +119,7 @@ CONFIG_GAMEPC = IRSequence("Gaming PC",
 #=Keypad controls
 #===============================================================================
 KEYPAD_TASKASSIGN = (
-    CONFIG_OFF, CONFIG_SAT, CONFIG_BRAY, CONFIG_GAMEPC
+    CONFIG_OFF, CONFIG_NETFLIX, CONFIG_GAMEPC, CONFIG_BRAY
 )
 
 #Colors we will be using:
