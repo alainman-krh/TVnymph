@@ -26,7 +26,7 @@ TRIGGER_LED = True
 #Mesages we will be using:
 IRPROT = PDE.IRProtocols.NEC
 MSG_RPT = PDE.IRMSG32_NECRPT #Special repeat message
-MSG_VOLUP = IRMsg32(IRPROT, 0x5EA1D827) #Yamaha: Volume up #TODO: FIXME!
+MSG_VOLUP = IRMsg32(IRPROT, 0x5EA158A7) #Yamaha: Volume up
 MSG_VOLDN = IRMsg32(IRPROT, 0x5EA1D827) #Yamaha: Volume down
 
 #NeoKey/Keypad configuration
