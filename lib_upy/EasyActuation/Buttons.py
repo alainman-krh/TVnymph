@@ -5,6 +5,23 @@ from .Base import now_ms
 from time import sleep
 
 
+#=Behavioural profiles
+#===============================================================================
+class Profile:
+    def __init__(self, DEBOUNCE_MS=100, LONGPRESS_MS=2000, DBLPRESSMAX_MS=1000):
+        #How long something must be held to count as pressed:
+        self.DEBOUNCE_MS = DEBOUNCE_MS
+        #How long something needs to be held to be considered a "long press":
+        self.LONGPRESS_MS = LONGPRESS_MS
+        #Maximum time between press events for something to be considered a "double-press":
+        self.DBLPRESSMAX_MS = DBLPRESSMAX_MS
+        pass
+
+class Profiles:
+    DEFAULT = Profile()
+    #TODO: Add more profiles!
+
+
 #=EasyButton
 #===============================================================================
 class BtnState:
@@ -23,38 +40,50 @@ class BtnSig:
 class EasyButton: #State machine (FSM) controlling interations with buttons
     SIG = BtnSig #Alias
 
-    def __init__(self):
+    def __init__(self, profile=Profiles.DEFAULT):
         self.state = BtnState.UP
+        self.profile = profile
         self.last_press = now_ms()
 
-    #@abstractmethod
-    def _scan_raw(self): #Scan for raw button state
-        return BtnState.UP #Base class won't do anything at the moment
-
-#Scan for signals (depending on state)
+#Process events: Internal handlers
 #-------------------------------------------------------------------------------
-    def _scan_up(self, stateraw): #Called when BtnState.UP
-        if BtnState.DOWN == stateraw:
+    def _process_up(self, pressed): #Called when BtnState.UP
+        if pressed:
             self.last_press = now_ms()
             self.state = BtnState.DOWN
             return BtnSig.PRESS
         return BtnSig.NONE
 
-    def _scan_down(self, stateraw): #Called when BtnState.DOWN
-        if BtnState.DOWN == stateraw:
+    def _process_down(self, pressed): #Called when BtnState.DOWN
+        if pressed:
             return BtnSig.HOLD
-        elif BtnState.UP == stateraw:
-            self.state = BtnState.UP
-            return BtnSig.RELEASE
-        return BtnSig.NONE
+        #Otherwise:
+        self.state = BtnState.UP
+        return BtnSig.RELEASE
 
-    def signals_detect(self): #Also updates state (Typically: Only run once per loop)
-        stateraw = self._scan_raw()
-        if BtnState.DOWN == self.state:
-            sig = self._scan_down(stateraw)
+#Process events (depends on state)
+#-------------------------------------------------------------------------------
+    def process_events(self): #Also updates state (Typically: Only run once per loop)
+        laststate = self.state #Readability
+        pressed = self._physcan_ispressed()
+        if BtnState.DOWN == laststate:
+            sig = self._process_down(pressed)
         else:
-            sig = self._scan_up(stateraw)
+            sig = self._process_up(pressed)
         return sig
+
+    def signals_detect(self): #TODO: Deprecate
+        return self.process_events()
+
+#Hardware-specific methods
+#-------------------------------------------------------------------------------
+    #@abstractmethod
+    def _physcan_ispressed(self): #Scan for raw button state
+        return False #Base class won't do anything at the moment
+
+#Application-specific event handlers:
+#-------------------------------------------------------------------------------
+    #TODO
 
 
 #=EasyNeoKey
@@ -65,7 +94,7 @@ class EasyNeoKey(EasyButton):
         self.obj = obj
         self.idx = idx
 
-    def _scan_raw(self):
-        return BtnState.DOWN if self.obj[self.idx] else BtnState.UP
+    def _physcan_ispressed(self):
+        return self.obj[self.idx]
 
 #Last line
