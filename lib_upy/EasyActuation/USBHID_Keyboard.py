@@ -16,28 +16,28 @@ cc = ConsumerControl(usb_hid.devices)
 
 #=Classes
 #===============================================================================
-class KeySequence: #Simplified, common interface for HID/Keyboard & HID/ConsumerControl
-    def __init__(self, dev, signal_or_seq, release_has_args=True) -> None:
+class KeyCombination: #Simplified, common interface for sending key combinations (HID/Keyboard & HID/ConsumerControl)
+    def __init__(self, dev, keycodes, release_has_args=True) -> None:
         self.dev = dev
-        if type(signal_or_seq) is int:
-            signal_or_seq = (signal_or_seq,) #Make tuple
-        self.signal_or_seq = signal_or_seq
+        if type(keycodes) is int:
+            keycodes = (keycodes,) #Make tuple
+        self.keycodes = keycodes
 
-        signal_or_seq_release = signal_or_seq
+        keycodes_release = keycodes
         if not release_has_args:
-            signal_or_seq_release = tuple() #No args
-        self.signal_or_seq_release = signal_or_seq_release
+            keycodes_release = tuple() #No args
+        self.keycodes_release = keycodes_release
     def press(self):
-        self.dev.press(*self.signal_or_seq)
+        self.dev.press(*self.keycodes)
     def release(self):
-        self.dev.release(*self.signal_or_seq_release)
+        self.dev.release(*self.keycodes_release)
 
 
 #=Convenience/constructor functions
 #===============================================================================
-def SeqKBD(signal_or_seq):
-    return KeySequence(kbd, signal_or_seq)
-def SeqCC(signal_or_seq):
-    return KeySequence(cc, signal_or_seq, release_has_args=False)
+def KeysMain(keycodes):
+    return KeyCombination(kbd, keycodes)
+def KeysCC(keycodes):
+    return KeyCombination(cc, keycodes, release_has_args=False)
 
 #Last line
