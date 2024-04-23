@@ -23,10 +23,22 @@ class Profiles:
     #TODO: Add more profiles!
 
 
-#=EasyButton_EventHandler
+#=AbstractEasyButton
 #===============================================================================
-class EasyButton_EventHandler:
-    """Individual handlers are optionally implemented by user"""
+class AbstractEasyButton:
+    def __init__(self, profile=Profiles.DEFAULT):
+        self.profile = profile
+
+#Hardware-specific methods
+#-------------------------------------------------------------------------------
+    #@abstractmethod
+    def _physcan_ispressed(self, id): #Scan HW for button state
+        return False #Base class won't do anything at the moment
+    def process_events(self): #Concrete class should trigger state-machine here
+        pass
+
+#User-facing event handlers (optionally/application-dependent)
+#-------------------------------------------------------------------------------
     def handle_press(self, id):
         pass
     def handle_longpress(self, id):
@@ -36,22 +48,6 @@ class EasyButton_EventHandler:
     def handle_hold(self, id):
         pass
     def handle_release(self, id):
-        pass
-
-
-#=AbstractEasyButton
-#===============================================================================
-class AbstractEasyButton:
-    def __init__(self, eventhdlr:EasyButton_EventHandler, profile=Profiles.DEFAULT):
-        self.eventhdlr = eventhdlr
-        self.profile = profile
-
-#Hardware-specific methods
-#-------------------------------------------------------------------------------
-    #@abstractmethod
-    def _physcan_ispressed(self, id): #Scan HW for button state
-        return False #Base class won't do anything at the moment
-    def process_events(self): #Concrete class should trigger state-machine here
         pass
 
 
@@ -68,33 +64,30 @@ class EasyButton_StateMachine: #State machine (FSM) controlling interations with
 #-------------------------------------------------------------------------------
     def _pevents_up(self, pressed):
         now = now_ms()
-        eventhdlr = self.btn.eventhdlr
         if pressed:
             self.press_start = now
             self.pevents_currentstate = self._pevents_press
-            eventhdlr.handle_press(self.id)
+            self.btn.handle_press(self.id)
 
     def _pevents_press(self, pressed): #Singlepress
         now = now_ms()
-        eventhdlr = self.btn.eventhdlr
         profile = self.btn.profile
         if pressed:
             elapsed = ms_elapsed(self.press_start, now)
             if elapsed >= profile.LONGPRESS_MS:
                 self.pevents_currentstate = self._pevents_longpress
-                eventhdlr.handle_longpress(self.id)
-            eventhdlr.handle_hold(self.id)
+                self.btn.handle_longpress(self.id)
+            self.btn.handle_hold(self.id)
         else:
             self.pevents_currentstate = self._pevents_up
-            eventhdlr.handle_release(self.id)
+            self.btn.handle_release(self.id)
 
     def _pevents_longpress(self, pressed):
-        eventhdlr = self.btn.eventhdlr
         if pressed:
-            eventhdlr.handle_hold(self.id)
+            self.btn.handle_hold(self.id)
         else:
             self.pevents_currentstate = self._pevents_up
-            eventhdlr.handle_release(self.id)
+            self.btn.handle_release(self.id)
 
 #Process button events
 #-------------------------------------------------------------------------------
@@ -110,8 +103,8 @@ class EasyButton_StateMachine: #State machine (FSM) controlling interations with
 #=EasyNeoKey
 #===============================================================================
 class EasyNeoKey_1x4(AbstractEasyButton):
-    def __init__(self, obj:NeoKey1x4, eventhdlr:EasyButton_EventHandler, profile=Profiles.DEFAULT):
-        super().__init__(eventhdlr, profile)
+    def __init__(self, obj:NeoKey1x4, profile=Profiles.DEFAULT):
+        super().__init__(profile)
         self.statem_list = tuple(EasyButton_StateMachine(self, i) for i in range(4))
         self.obj = obj
 

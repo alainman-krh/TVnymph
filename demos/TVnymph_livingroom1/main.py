@@ -1,6 +1,6 @@
 #demos/TVnymph_livingroom1: Typical example (TV+SAT+BRAY).
 #-------------------------------------------------------------------------------
-from EasyActuation.Buttons import EasyButton_EventHandler, EasyNeoKey_1x4
+from EasyActuation.Buttons import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -108,7 +108,8 @@ neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
 
 #=Buttons/Event handlers
 #===============================================================================
-class Handler_IRSend(EasyButton_EventHandler):
+class NeoKey_IRSend(EasyNeoKey_1x4):
+    """Use `easytx` to send IR message sequence when NeoKey is pressed"""
     def runseq(self, id, poweron_skip=False):
         irsequence = KEYPAD_TASKASSIGN[id]
         print(f"Switching to mode: {irsequence.id}")        
@@ -122,7 +123,7 @@ class Handler_IRSend(EasyButton_EventHandler):
         self.runseq(id, poweron_skip=True)
     def handle_longpress(self, id):
         self.runseq(id)
-ez_neokey = EasyNeoKey_1x4(neokey, Handler_IRSend())
+ez_neokey = NeoKey_IRSend(neokey)
 
 
 #=Main loop

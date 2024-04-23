@@ -1,6 +1,6 @@
 #demos/test_IRTx_neokey: Test IRTx control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
-from EasyActuation.Buttons import EasyButton_EventHandler, EasyNeoKey_1x4
+from EasyActuation.Buttons import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -21,7 +21,7 @@ BUS_I2C = board.I2C() #use default I2C bus
 
 #=Main config
 #===============================================================================
-TRIGGER_LED = True
+TRIGGER_LED = True; LOG_MSG = False #Might cause timing issues (I2C com is slow)
 
 #Mesages we will be using:
 IRPROT = PDE.IRProtocols.NEC
@@ -43,7 +43,7 @@ KEYPAD_MESSAGES = ( #IR messages assoicated with each NeoKey:
 #===============================================================================
 #Connect to IR diode & on-board LED:
 tx = IRTx(PIN_TX, IRPROT) #Configure to transmit
-txled = IRTx(PIN_TXLED, IRPROT) #Configure to mirror transmitter
+txled = IRTx(PIN_TXLED, IRPROT) #Configure to mirror transmitter (prolongs "main loop" runtime)
 ez_tx = EasyTx(tx) #Controls timing between message transmissions
 
 #Connect to NeoKey object:
@@ -52,7 +52,8 @@ neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
 
 #=Buttons/Event handlers
 #===============================================================================
-class Handler_IRSend(EasyButton_EventHandler):
+class NeoKey_IRSend(EasyNeoKey_1x4):
+    """Use `easytx` to send IR message sequence when NeoKey is pressed"""
     def handle_press(self, id):
         msg = KEYPAD_MESSAGES[id] #Id should always be with range
         pulsetrain = ez_tx.msg_send(msg)
@@ -61,14 +62,16 @@ class Handler_IRSend(EasyButton_EventHandler):
         pulsetrain = ez_tx.msg_send(MSG_RPT) #Immediately send 1st repeat to maintain timing (button scans are slow)
         if TRIGGER_LED:
             txled.ptrain_sendnative(pulsetrain) #Mirror onto LED... but only shorter RPT signal
-        print(f"{msg.str_hex()} (id={id})")
+        if LOG_MSG:
+            print(f"{msg.str_hex()} (id={id})")
 
     def handle_hold(self, id):
         pulsetrain = ez_tx.msg_send(MSG_RPT)
         if TRIGGER_LED:
             txled.ptrain_sendnative(pulsetrain) #Mirror onto LED
-        print(f"RPT (id={id})")
-ez_neokey = EasyNeoKey_1x4(neokey, Handler_IRSend())
+        if LOG_MSG:
+            print(f"RPT (id={id})")
+ez_neokey = NeoKey_IRSend(neokey)
 
 
 #=Main loop
