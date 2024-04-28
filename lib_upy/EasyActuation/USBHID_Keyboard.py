@@ -1,4 +1,4 @@
-#EasyActuation/USBHID_Keyboard.py
+#EasyActuation/USBHID_Keyboard.py: Simplified interface to adafruit_hid: keyboard/consumer_control
 #-------------------------------------------------------------------------------
 from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_hid.consumer_control_code import ConsumerControlCode as CCC #Convenience for module user
@@ -7,9 +7,14 @@ from adafruit_hid.keycode import Keycode #Convenience for module user
 import usb_hid
 
 
+#=Resources
+#===============================================================================
+#https://docs.circuitpython.org/projects/hid/en/latest/index.html
+
+
 #=Constants
 #===============================================================================
-#Access to standard HID/Keyboard & HID/ConsumerControl
+#Access to standard HID/Keyboard & HID/ConsumerControl (No need for user to construct directly):
 kbd = Keyboard(usb_hid.devices)
 cc = ConsumerControl(usb_hid.devices)
 

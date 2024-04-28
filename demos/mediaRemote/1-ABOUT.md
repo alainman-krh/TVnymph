@@ -13,3 +13,6 @@ Turn your microcontroller board into a media remote receiver for your PC/Mac.
 
 # Comments
 - Should work on any microcontroller supported by the CircuitPython `pulseio` lib (not just RP2040).
+
+# Resources/Links
+- <https://docs.circuitpython.org/projects/hid/en/latest/index.html>

@@ -9,6 +9,12 @@ from EasyActuation.USBHID_Keyboard import KeysMain, KeysCC, Keycode, CCC
 import board
 
 
+#=Resources for Keycode/CCC (aliases for Keycode/ConsumerControlCode)
+#===============================================================================
+#https://docs.circuitpython.org/projects/hid/en/latest/api.html#adafruit-hid-keycode-keycode
+#https://docs.circuitpython.org/projects/hid/en/latest/api.html#adafruit_hid.consumer_control_code.ConsumerControlCode
+
+
 #=Platform/build-dependent config
 #===============================================================================
 rx_pin = board.GP16 #RP2040 nano
@@ -65,6 +71,8 @@ SIGNAL_MAP_LG = { #Mapping for some LG IR remote (NEC protocol)
     0x20DFC03F: KeysCC(CCC.VOLUME_DECREMENT), #vol-
     0x20DF40BF: KeysCC(CCC.VOLUME_INCREMENT), #vol+
 }
+trackprev = "0x20DF8D72"
+tracknext = "0x20DF8D72"
 
 #Respond to both remotes (NOTE: cannot have overlapping codes)
 SIGNAL_MAP = {}
