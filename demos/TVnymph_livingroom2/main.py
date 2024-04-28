@@ -83,13 +83,14 @@ CONFIG_NETFLIX = IRSequence("Netflix",
     (
         MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.STR_NETFLIX, 0.2,
+        MSG_RX.INPUT_TVAUDIO, 0.2, #Directly running on TV
     )
 )
 CONFIG_APPLETV = IRSequence("Apple TV",
     (
         MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.INPUT_APPLETV, 0.2,
-        MSG_RX.INPUT_TVAUDIO, 0.2,
+        MSG_RX.INPUT_TVAUDIO, 0.2, #Directly connected to TV
     )
 )
 CONFIG_BRAY = IRSequence("Blu-ray",
@@ -97,7 +98,7 @@ CONFIG_BRAY = IRSequence("Blu-ray",
     (
         MSG_RX.ON, 0.2, MSG_TV.ON, 0.2, MSG_BRAY.ON, TWAIT_POWERON,
         MSG_TV.INPUT_RX, 0.2,
-        MSG_RX.INPUT_BRAY, 0.2,
+        MSG_RX.INPUT_BRAY, 0.2, #Connected through RX
     )
 )
 CONFIG_GAMEPC = IRSequence("Gaming PC",
@@ -106,7 +107,7 @@ CONFIG_GAMEPC = IRSequence("Gaming PC",
     (
         MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.INPUT_RX, 0.2,
-        MSG_RX.INPUT_GAMEPC, 0.2,
+        MSG_RX.INPUT_GAMEPC, 0.2, #Connected through RX
     )
 )
 
