@@ -17,7 +17,7 @@ rx_pin = board.GP16 #RP2040 nano
 #=Main config
 #===============================================================================
 rx = IRRx(rx_pin)
-SIGNAL_MAP_ADAFRUIT = {
+SIGNAL_MAP_ADAFRUIT_389 = { #Mapping for Adafruit 389 Mini Remote Control
     0xFF6897: KeysMain(Keycode.KEYPAD_ZERO), #0
     0xFF30CF: KeysMain(Keycode.KEYPAD_ONE), #1
     0xFF18E7: KeysMain(Keycode.KEYPAD_TWO), #2,
@@ -41,12 +41,42 @@ SIGNAL_MAP_ADAFRUIT = {
     0xFFE21D: KeysCC(CCC.VOLUME_INCREMENT), #vol+
 }
 
+SIGNAL_MAP_LG = { #Mapping for some LG IR remote (NEC protocol)
+    0x20DF08F7: KeysMain(Keycode.KEYPAD_ZERO), #0
+    0x20DF8877: KeysMain(Keycode.KEYPAD_ONE), #1
+    0x20DF48B7: KeysMain(Keycode.KEYPAD_TWO), #2,
+    0x20DFC837: KeysMain(Keycode.KEYPAD_THREE), #3,
+    0x20DF28D7: KeysMain(Keycode.KEYPAD_FOUR), #4,
+    0x20DFA857: KeysMain(Keycode.KEYPAD_FIVE), #5,
+    0x20DF6897: KeysMain(Keycode.KEYPAD_SIX), #6,
+    0x20DFE817: KeysMain(Keycode.KEYPAD_SEVEN), #7,
+    0x20DF18E7: KeysMain(Keycode.KEYPAD_EIGHT), #8,
+    0x20DF9867: KeysMain(Keycode.KEYPAD_NINE), #9,
+    0x20DF906F: KeysCC(CCC.MUTE), #setup (alternatives: ESCAPE, KEYPAD_NUMLOCK, MUTE?)
+    0x20DF02FD: KeysMain(Keycode.UP_ARROW), #nav_up
+    0x20DFE01F: KeysMain(Keycode.LEFT_ARROW), #nav_left
+    0x20DF22DD: KeysMain(Keycode.KEYPAD_ENTER), #nav_enter
+    0x20DF609F: KeysMain(Keycode.RIGHT_ARROW), #nav_right
+    0x20DF14EB: KeysMain(Keycode.BACKSPACE), #nav_back
+    0x20DF827D: KeysMain(Keycode.DOWN_ARROW), #nav_down
+    0x20DF0DF2: KeysCC(CCC.PLAY_PAUSE), #play_pause
+    0x20DF5DA2: KeysCC(CCC.PLAY_PAUSE), #play_pause
+    0x20DF8D72: KeysCC(CCC.STOP), #stop_mode
+    0x20DFC03F: KeysCC(CCC.VOLUME_DECREMENT), #vol-
+    0x20DF40BF: KeysCC(CCC.VOLUME_INCREMENT), #vol+
+}
+
+#Respond to both remotes (NOTE: cannot have overlapping codes)
+SIGNAL_MAP = {}
+SIGNAL_MAP.update(SIGNAL_MAP_ADAFRUIT_389)
+SIGNAL_MAP.update(SIGNAL_MAP_LG)
+
 
 #=Event handlers
 #===============================================================================
 class IRDetect(EasyRx):
     def handle_press(self, msg:IRMsg32):
-        key = SIGNAL_MAP_ADAFRUIT.get(msg.bits, None)
+        key = SIGNAL_MAP.get(msg.bits, None)
         if key is None:
             print("Unknown message:", msg.str_hex())
             return
@@ -57,7 +87,7 @@ class IRDetect(EasyRx):
         print(f"Repeat!")
 
     def handle_release(self, msg:IRMsg32):
-        key = SIGNAL_MAP_ADAFRUIT.get(msg.bits, None)
+        key = SIGNAL_MAP.get(msg.bits, None)
         if key is None:
             return
         key.release()
