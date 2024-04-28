@@ -4,7 +4,7 @@ Tools to simplify interaction with sensors, etc.
 
 # `EasyActuation.Buttons`
 <!----------------------------------------------------------------------------->
-State machine (FSM) controlling interations various buttons.
+State machine (FSM) controlling interations various types of buttons.
 - `EasyActuation.Buttons.EasyNeoKey_1x4`: Interacting with NeoKey 1x4 keypad.
 - TODO: Add more!
 
