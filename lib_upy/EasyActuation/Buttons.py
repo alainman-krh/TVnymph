@@ -96,9 +96,6 @@ class EasyButton_StateMachine: #State machine (FSM) controlling interations with
         pressed = self.btn._physcan_ispressed(self.id)
         self.pevents_currentstate(pressed)
 
-    def signals_detect(self): #TODO: Deprecate
-        return self.process_events()
-
 
 #=EasyNeoKey
 #===============================================================================
