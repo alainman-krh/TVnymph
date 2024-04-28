@@ -5,7 +5,7 @@ from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
-from CelIRcom.EasyTx import EasyTx
+from CelIRcom.EasyIRTx import EasyTx
 from array import array
 import board
 

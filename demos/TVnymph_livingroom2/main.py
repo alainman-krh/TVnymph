@@ -6,7 +6,7 @@ from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 import CelIRcom.Protocols_PLE as PLE
-from CelIRcom.EasyTx import EasyTx, IRSequence
+from CelIRcom.EasyIRTx import EasyTx, IRSequence
 import board
 
 

@@ -1,4 +1,4 @@
-#CelIRcom/EasyTx
+#CelIRcom/EasyIRTx.py
 #-------------------------------------------------------------------------------
 from .Timebase import now_ms, ms_elapsed, ms_addwrap, clamp
 from .ProtocolsBase import IRMsg32
