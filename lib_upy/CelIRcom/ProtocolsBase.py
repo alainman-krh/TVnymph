@@ -41,6 +41,7 @@ class AbstractIRProtocolDef:
         self.tickUS = tickUS
         self.f = f
         self.duty_int16 = round((1<<16)*duty) #Assume 1<<16 means "one" here
+        #TODO: Add .msgintervalMS
 
 
     #Implement interface:
