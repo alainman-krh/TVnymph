@@ -75,6 +75,9 @@ class EasyRx: #State machine (FSM) helping to schedule outgoing IR messages
 
 #User-facing event handlers (optionally/application-dependent)
 #-------------------------------------------------------------------------------
+    #Assuming Rx only deals with 1 protocol: should be fine to only provide msg_bits.
+    #Advantage: (Theoretically) wouldn't need to use heap... but would have to use native int type???
+    #Not sure if this is a problem.
     def handle_press(self, msg:AbstractIRMessage):
         pass
     def handle_hold(self, msg:AbstractIRMessage):
