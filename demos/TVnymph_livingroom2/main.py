@@ -81,7 +81,7 @@ CONFIG_OFF = IRSequence("OFF",
 )
 CONFIG_NETFLIX = IRSequence("Netflix",
     (
-        MSG_TV.ON, TWAIT_POWERON,
+        MSG_RX.ON, 0.2, MSG_TV.ON, TWAIT_POWERON,
         MSG_TV.STR_NETFLIX, 0.2,
         MSG_RX.INPUT_TVAUDIO, 0.2, #Directly running on TV
     )
