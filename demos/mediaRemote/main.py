@@ -67,12 +67,13 @@ SIGNAL_MAP_LG = { #Mapping for some LG IR remote (NEC protocol)
     0x20DF827D: KeysMain(Keycode.DOWN_ARROW), #nav_down
     0x20DF0DF2: KeysCC(CCC.PLAY_PAUSE), #play_pause
     0x20DF5DA2: KeysCC(CCC.PLAY_PAUSE), #play_pause
+    0x20DFF10E: KeysCC(CCC.SCAN_PREVIOUS_TRACK),
+    0x20DF718E: KeysCC(CCC.SCAN_NEXT_TRACK),
     0x20DF8D72: KeysCC(CCC.STOP), #stop_mode
     0x20DFC03F: KeysCC(CCC.VOLUME_DECREMENT), #vol-
     0x20DF40BF: KeysCC(CCC.VOLUME_INCREMENT), #vol+
+    0x20DFDA25: KeysMain(Keycode.ESCAPE),
 }
-trackprev = "0x20DF8D72"
-tracknext = "0x20DF8D72"
 
 #Respond to both remotes (NOTE: cannot have overlapping codes)
 SIGNAL_MAP = {}
