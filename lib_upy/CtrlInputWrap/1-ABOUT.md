@@ -1,19 +1,21 @@
-## `EasyActuation`
+## `CtrlInputWrap`
 <!----------------------------------------------------------------------------->
-Tools to simplify interaction with sensors, etc.
+Simplified interaction with buttons, rotary encoders, and other sensors/input devices.
 
-# `EasyActuation.Buttons`
+# `CtrlInputWrap.digitalio`
 <!----------------------------------------------------------------------------->
-State machine (FSM) controlling interations various types of buttons.
-- `EasyActuation.Buttons.EasyNeoKey_1x4`: Interacting with NeoKey 1x4 keypad.
-- TODO: Add more!
+Simplified interface to buttons sensed using `digitalio`.
 
-# `EasyActuation.USBHID_Keyboard`
+# `CtrlInputWrap.adafruit_neokey`
 <!----------------------------------------------------------------------------->
-Simplified interface to adafruit_hid: keyboard/consumer_control
+Simplified interface to `EasyNeoKey_1x4` using `EasyButton`/`ButtonSensorIF`.
+
+# `CtrlInputWrap.USBHID_Keyboard`
+<!----------------------------------------------------------------------------->
+Simplified interface to `adafruit_hid`: keyboard/consumer_control
 Example:
 ```python
-from EasyActuation.USBHID_Keyboard import KeysMain, KeysCC, Keycode, CCC
+from CtrlInputWrap.USBHID_Keyboard import KeysMain, KeysCC, Keycode, CCC
 from time import sleep
 
 key1 = KeysMain(Keycode.KEYPAD_ENTER) #Object that sends keypad "enter" code
