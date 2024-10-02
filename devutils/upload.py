@@ -10,8 +10,8 @@ _THIS_FILE = abspath(__file__); _THIS_DIR = dirname(_THIS_FILE); _THIS_REPO = di
 DEST = "E:\\"
 #proj = joinpath("demos", "TVnymph_livingroom1")
 #proj = joinpath("demos", "TVnymph_livingroom2")
-#proj = joinpath("demos", "mediaRemote")
-proj = joinpath("demos", "PCnymph_IRRxClick")
+proj = joinpath("demos", "mediaRemote")
+#proj = joinpath("demos", "PCnymph_IRRxClick")
 #proj = joinpath("demos", "test_IRTx_neokey")
 #proj = joinpath("demos", "test_IRRx")
 refresh_libs = True
@@ -23,7 +23,7 @@ refresh_libs = True
 #DEST = _THIS_REPO #DEBUG
 print(f"Writing to {DEST}...")
 if refresh_libs:
-	for libname in ("CelIRcom", "EasyActuation"):
+	for libname in ("CelIRcom", "CtrlInputWrap"):
 		print(f"Synchronizing lib '{libname}'...")
 		src = joinpath(_THIS_REPO, "lib_upy", libname)
 		dest = joinpath(DEST, "lib", libname)

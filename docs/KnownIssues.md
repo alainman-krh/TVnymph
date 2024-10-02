@@ -4,5 +4,5 @@
 
 # TODO
 <!----------------------------------------------------------------------------->
-- Break out `CelIRcom` and `EasyActuation` into their own repositories.
+- Break out `CelIRcom` and `CtrlInputWrap` into their own repositories.
 - Figure out how to link them in as submodules.

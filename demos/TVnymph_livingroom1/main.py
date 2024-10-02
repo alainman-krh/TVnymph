@@ -1,6 +1,6 @@
 #demos/TVnymph_livingroom1: Typical example (TV+SAT+BRAY).
 #-------------------------------------------------------------------------------
-from EasyActuation.Buttons import EasyNeoKey_1x4
+from CtrlInputWrap.Buttons import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
