@@ -3,6 +3,8 @@
 from CtrlInputs.Buttons import Profiles, EasyButton
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 
+#TODO: Cleanup. Hierarchy somewhat inverted (not practcial)
+
 
 #=EasyNeoKey
 #===============================================================================
@@ -12,7 +14,7 @@ class EasyNeoKey_1x4:
 	def __init__(self, oref:NeoKey1x4, btnCls, profile=Profiles.DEFAULT):
 		"""btnCls: Derived class with custom event handlers."""
 		super().__init__(profile)
-		self.btns = tuple(btnCls(id=i, profile=profile) for i in range(4))
+		self.btns = tuple(btnCls(id=idx, profile=profile) for idx in range(4))
 		self.oref = oref
 
 	def _physcan_ispressed(self, idx):
