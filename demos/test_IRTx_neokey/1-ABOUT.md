@@ -7,7 +7,7 @@ Slow I2C communications causes timing difficulties sending out NEC-repeat messag
 # Features:
 
 # Provided/tested configuration
-- Configured for Raspberry Pi Pico RP2040 board.
+- Pre-configured for Adafruit Metro RP2040 board.
 
 # Comments
 - Should work on any microcontroller supported by the CircuitPython `pulseio` lib (not just RP2040).

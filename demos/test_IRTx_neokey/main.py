@@ -11,9 +11,8 @@ from array import array
 import board
 
 
-#=Platform/build-dependent config
+#=Platform/build-dependent config (Adafruit Metro RP2040)
 #===============================================================================
-#Assume Metro RP2040:
 KEYPAD_ADDR = 0x30 #I2C address
 PIN_TX = board.D12
 PIN_TXLED = board.LED

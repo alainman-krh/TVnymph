@@ -15,9 +15,9 @@ import board
 #https://docs.circuitpython.org/projects/hid/en/latest/api.html#adafruit_hid.consumer_control_code.ConsumerControlCode
 
 
-#=Platform/build-dependent config
+#=Platform/build-dependent config (Raspberry Pi Pico RP2040)
 #===============================================================================
-rx_pin = board.GP16 #RP2040 nano
+rx_pin = board.GP16
 
 
 #=Main config

@@ -5,7 +5,7 @@ Quickly reconfigure your TV/AV setup (TV+AV/RX+BRAY+PC) for different purposes.
 - Modifiable to use "any" IR remote/AV setup (supported by `CelIRcom` lib).
 
 # Provided/tested configuration
-- Configured for Raspberry Pi Pico RP2040 board.
+- Pre-configured for Adafruit Metro RP2040 board.
 
 # Comments
 - Should work on any microcontroller supported by the CircuitPython `pulseio` lib (not just RP2040).

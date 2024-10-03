@@ -6,7 +6,7 @@ Test receiving/decoding/capturing IR signals and their associated HEX representa
 - Modifiable to use "any" IR remote (supported by `CelIRcom` lib).
 
 # Provided/tested configuration
-- Configured for Raspberry Pi Pico RP2040 board.
+- Pre-configured for Raspberry Pi Pico RP2040 board.
 
 # Comments
 - Should work on any microcontroller supported by the CircuitPython `pulseio` lib (not just RP2040).

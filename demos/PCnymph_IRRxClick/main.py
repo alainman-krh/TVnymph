@@ -6,9 +6,9 @@ import CelIRcom.Protocols_PDE as PDE
 import board
 
 
-#=Platform/build-dependent config
+#=Platform/build-dependent config (Raspberry Pi Pico RP2040)
 #===============================================================================
-rx_pin = board.GP16 #RP2040 nano
+rx_pin = board.GP16
 
 
 #=Main config

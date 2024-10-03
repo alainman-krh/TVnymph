@@ -6,7 +6,7 @@ Turn your microcontroller board into a media remote receiver for your PC/Mac.
 - Can send any keys supported by `adafruit_hid` lib (not just media keys).
 
 # Provided/tested configuration
-- Configured for Raspberry Pi Pico RP2040 board.
+- Pre-configured for Raspberry Pi Pico RP2040 board.
 - Preset to work with Adafruit mini remote control (ID 389).
 - Preset to work with [LG-compatible remote HERE](https://www.amazon.ca/dp/B0BHT5BW41) (Good responsiveness).
 - Tested on Windows/Mac/Linux.

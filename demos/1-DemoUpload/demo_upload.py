@@ -8,9 +8,9 @@ from os.path import join as joinpath
 DEST_DRIVE = "E:\\"
 #proj = "TVnymph_livingroom1"
 #proj = "TVnymph_livingroom2"
-proj = "mediaRemote"
-#proj = "PCnymph_IRRxClick"
-#proj = "test_IRTx_neokey"
+proj = "mediaRemote" #Generates keyboard media key presses (vol/mute, play/ff/rew, etc)
+#proj = "PCnymph_IRRxClick" #Relays IR signals to the "PCnymph" software (currently: mediacontrol_applet in AVglue project)
+#proj = "test_IRTx_neokey" #Send out volume +/- over `NeoKey1x4` ()
 #proj = "test_IRRx"
 
 
