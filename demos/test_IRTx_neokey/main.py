@@ -1,6 +1,7 @@
 #demos/test_IRTx_neokey: Test IRTx control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
-from CtrlInputWrap.Buttons import EasyNeoKey_1x4
+from CtrlInputs.Buttons import EasyButton
+from CtrlInputWrap.adafruit_neokey import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -52,10 +53,10 @@ neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
 
 #=Buttons/Event handlers
 #===============================================================================
-class NeoKey_IRSend(EasyNeoKey_1x4):
+class NeoKey_IRSend(EasyButton):
     """Use `easytx` to send IR message sequence when NeoKey is pressed"""
-    def handle_press(self, id):
-        msg = KEYPAD_MESSAGES[id] #Id should always be with range
+    def handle_press(self, idx):
+        msg = KEYPAD_MESSAGES[idx] #idx should always be within range
         pulsetrain = ez_tx.msg_send(msg)
         #Neokey takes about 12ms/key to process.
         #(Extra 12ms*4keys breaks timing for 1st NEC "repeat" message)
@@ -63,15 +64,15 @@ class NeoKey_IRSend(EasyNeoKey_1x4):
         if TRIGGER_LED:
             txled.ptrain_sendnative(pulsetrain) #Mirror onto LED... but only shorter RPT signal
         if LOG_MSG:
-            print(f"{msg.str_hex()} (id={id})")
+            print(f"{msg.str_hex()} (idx={idx})")
 
-    def handle_hold(self, id):
+    def handle_hold(self, idx):
         pulsetrain = ez_tx.msg_send(MSG_RPT)
         if TRIGGER_LED:
             txled.ptrain_sendnative(pulsetrain) #Mirror onto LED
         if LOG_MSG:
-            print(f"RPT (id={id})")
-ez_neokey = NeoKey_IRSend(neokey)
+            print(f"RPT (idx={idx})")
+ez_neokey = EasyNeoKey_1x4(neokey, NeoKey_IRSend)
 
 
 #=Main loop
@@ -81,9 +82,10 @@ print("HI0")
 while True:
     #Simplified way of 
     for i in range(4): #Process all keys
-        is_pressed = neokey[i]
+        key:NeoKey_IRSend = ez_neokey.keys[i]
+        is_pressed = key.btnsense.isactive()
         color = KEYPAD_COLORS[i] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[i] = color
-    ez_neokey.process_events()
+        key.process_giveninputs(is_pressed)
 
 #Last line
