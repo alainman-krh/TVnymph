@@ -9,12 +9,16 @@ Helper utilities to upload a given project/demo to CircuitPython-enabled boards.
 - Alternative to using recommended IDE/flow.
 - Works well launched from VSCode.
 
-# Serial Monitors
+# How to monitor serial output
 <!----------------------------------------------------------------------------->
-Linux:
-- "screen": `screen /dev/path/to/device` (must install)
-Windows:
-- VSCode: Serial Monitor plugin (by Microsoft)
-  Suggest: Line ending = CR / "terminal mode"
-- putty (must install). WARN: Security issue found on some versions in 2024.
+Here are a few suggestions for serial monitors on different platforms:
+
+- Linux:
+  - "screen": `screen /dev/path/to/device` (must install)
+
+- Windows:
+  - VSCode: Serial Monitor plugin (by Microsoft)<br>
+    Suggest: Line ending = CR / "terminal mode"
+  - putty (must install)<br>
+    WARN: Security issue found on some versions in 2024.
 
