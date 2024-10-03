@@ -1,6 +1,7 @@
 #demos/TVnymph_livingroom2: More complex example (TV+AV/RX+BRAY+PC).
 #-------------------------------------------------------------------------------
-from CtrlInputWrap.Buttons import EasyNeoKey_1x4
+from CtrlInputs.Buttons import EasyButton
+from CtrlInputWrap.adafruit_neokey import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32
@@ -143,10 +144,10 @@ neokey = NeoKey1x4(BUS_I2C, addr=KEYPAD_ADDR)
 
 #=Buttons/Event handlers
 #===============================================================================
-class NeoKey_IRSend(EasyNeoKey_1x4):
+class NeoKey_IRSend(EasyButton):
     """Use `easytx` to send IR message sequence when NeoKey is pressed"""
-    def runseq(self, id, poweron_skip=False):
-        irsequence = KEYPAD_TASKASSIGN[id]
+    def runseq(self, idx, poweron_skip=False):
+        irsequence = KEYPAD_TASKASSIGN[idx]
         print(f"Switching to mode: {irsequence.id}")        
         sleep_max = None
         if poweron_skip:
@@ -154,11 +155,11 @@ class NeoKey_IRSend(EasyNeoKey_1x4):
         easytx.execute(irsequence, sleep_max=sleep_max)
         print(f"Mode switch complete: {irsequence.id}")
 
-    def handle_press(self, id):
-        self.runseq(id, poweron_skip=True)
-    def handle_longpress(self, id):
-        self.runseq(id)
-ez_neokey = NeoKey_IRSend(neokey)
+    def handle_press(self, idx):
+        self.runseq(idx, poweron_skip=True)
+    def handle_longpress(self, idx):
+        self.runseq(idx)
+ez_neokey = EasyNeoKey_1x4(neokey, NeoKey_IRSend)
 
 
 #=Main loop
@@ -167,9 +168,9 @@ print("\nTVnymph: initialized")
 print("HI2") #Debug: see if code was uploaded
 while True:
     for i in range(4): #Process all keys
-        is_pressed = neokey[i]
+        key:NeoKey_IRSend = ez_neokey.keys[i]
+        is_pressed = key.btnsense.isactive()
         color = KEYPAD_COLORASSIGN[i] if is_pressed else NEOPIXEL_OFF
         neokey.pixels[i] = color
-
-        ez_neokey.process_events(i) #Only one key per loop iteration
+        key.process_giveninputs(is_pressed)
 #Last line
