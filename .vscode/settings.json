@@ -5,6 +5,6 @@
     },
     "python.analysis.extraPaths": [
         "${workspaceFolder}\\libpython",
-        "${workspaceFolder}\\lib_upy",
+        "${workspaceFolder}\\lib_cktpy",
     ]
 }
