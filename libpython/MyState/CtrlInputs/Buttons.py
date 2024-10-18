@@ -1,4 +1,4 @@
-#CtrlInputs/Buttons.py
+#MyState/CtrlInputs/Buttons.py
 #-------------------------------------------------------------------------------
 from .Timebase import now_ms, ms_elapsed
 

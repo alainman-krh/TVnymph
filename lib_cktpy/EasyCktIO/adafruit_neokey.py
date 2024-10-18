@@ -1,6 +1,6 @@
-#CtrlInputWrap/adafruit_neokey.py
+#EasyCktIO/adafruit_neokey.py
 #-------------------------------------------------------------------------------
-from CtrlInputs.Buttons import EasyButton, ButtonSensorIF, Profiles
+from MyState.CtrlInputs.Buttons import EasyButton, ButtonSensorIF, Profiles
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 
 #TODO: Cleanup. Hierarchy somewhat inverted (not practcial)

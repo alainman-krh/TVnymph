@@ -1,7 +1,7 @@
 #demos/TVnymph_livingroom2: More complex example (TV+AV/RX+BRAY+PC).
 #-------------------------------------------------------------------------------
-from CtrlInputs.Buttons import EasyButton
-from CtrlInputWrap.adafruit_neokey import EasyNeoKey_1x4
+from MyState.CtrlInputs.Buttons import EasyButton
+from EasyCktIO.adafruit_neokey import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32

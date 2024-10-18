@@ -1,6 +1,6 @@
-#CtrlInputWrap/digitalio.py
+#EasyCktIO/digitalio.py
 #-------------------------------------------------------------------------------
-from CtrlInputs.Buttons import ButtonSensorIF
+from MyState.CtrlInputs.Buttons import ButtonSensorIF
 import digitalio
 
 

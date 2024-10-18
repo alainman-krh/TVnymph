@@ -1,7 +1,7 @@
 #demos/test_IRTx_neokey: Test IRTx control using NeoKey1x4 as input.
 #-------------------------------------------------------------------------------
-from CtrlInputs.Buttons import EasyButton
-from CtrlInputWrap.adafruit_neokey import EasyNeoKey_1x4
+from MyState.CtrlInputs.Buttons import EasyButton
+from EasyCktIO.adafruit_neokey import EasyNeoKey_1x4
 from adafruit_neokey.neokey1x4 import NeoKey1x4
 from CelIRcom.TRx_pulseio import IRTx
 from CelIRcom.ProtocolsBase import IRMsg32

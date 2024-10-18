@@ -5,7 +5,7 @@ from CelIRcom.ProtocolsBase import IRMsg32
 import CelIRcom.Protocols_PDE as PDE
 from CelIRcom.Timebase import now_ms, ms_elapsed
 from CelIRcom.EasyIRRx import EasyRx
-from CtrlInputWrap.USBHID_Keyboard import KeysMain, KeysCC, Keycode, CCC
+from EasyCktIO.USBHID_Keyboard import KeysMain, KeysCC, Keycode, CCC
 import board
 
 
