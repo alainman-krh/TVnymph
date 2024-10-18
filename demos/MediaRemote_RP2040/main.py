@@ -122,7 +122,7 @@ irdetect = IRDetect(rx, PDE.DecoderNEC(), PDE.DecoderNECRPT(), msgRPT=PDE.IRMSG3
 #=Main loop
 #===============================================================================
 print("HELLO24") #DEBUG: Change me to ensure uploaded version matches.
-print("mediaRemote: ready to receive!")
+print("MediaRemote: ready to receive!")
 while True:
     irdetect.process_events()
 #end program
