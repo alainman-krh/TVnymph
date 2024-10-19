@@ -8,7 +8,7 @@ Media remote receiver for your PC/MAC/thing supporting keyboard media keys.
 # Features
 <!----------------------------------------------------------------------------->
 - Can send any keys supported by `adafruit_hid` lib (not just media keys).
-- Can adapt for other other CircuitPython-compatible microcontroller boards.
+- Can adapt for other CircuitPython-compatible microcontroller boards.
 - Can adapt to use other IR remotes.
 
 # Provided/tested configuration
