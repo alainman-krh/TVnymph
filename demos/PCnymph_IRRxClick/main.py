@@ -8,17 +8,19 @@ import board
 
 #=Platform/build-dependent config (Raspberry Pi Pico RP2040)
 #===============================================================================
-rx_pin = board.GP16
+#rx_pin = board.GP16
+#rx_pin = board.D9 #Variant: KB2040 "Kee Boar"-based
 
 
 #=Main config
 #===============================================================================
 rx = IRRx(rx_pin)
 #Mesages we will be detecting:
-rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderNECRPT()])
+rx.decoders_setactive([PDE.DecoderNEC(), PDE.DecoderSamsung(), PDE.DecoderNECRPT()])
 
 #Change identifier sent with each code (must match what PCnymph_macroremote expects)
 PDE.IRProtocols.NEC.id = "IRNEC"
+PDE.IRProtocols.SAMSUNG.id = "IRSAM"
 PDE.IRProtocols.NECRPT.id = "IRNEC-RPT"
 
 
