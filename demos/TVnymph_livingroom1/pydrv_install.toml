@@ -1,0 +1,19 @@
+[modules.CPYBUNDLE]
+dest = "$BOARDROOT/lib"
+folders = [
+"$LIBPATH_CPYBUNDLE/adafruit_neokey",
+]
+
+[modules]
+dest = "$BOARDROOT/lib"
+folders = [
+"$PROJROOT/libpython/MyState",
+"$PROJROOT/lib_cktpy/CelIRcom",
+"$PROJROOT/lib_cktpy/EasyCktIO",
+]
+
+[package]
+dest = "$BOARDROOT"
+files = [
+"$THISPKG/main.py",
+]
