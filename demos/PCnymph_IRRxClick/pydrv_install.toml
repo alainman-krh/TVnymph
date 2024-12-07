@@ -1,0 +1,11 @@
+[modules]
+dest = "$BOARDROOT/lib"
+folders = [
+"$PROJROOT/lib_cktpy/CelIRcom",
+]
+
+[package]
+dest = "$BOARDROOT"
+files = [
+"$THISPKG/main.py",
+]
