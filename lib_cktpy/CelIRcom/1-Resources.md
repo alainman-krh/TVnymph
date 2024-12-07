@@ -10,7 +10,7 @@
 # Protocol information
 <!----------------------------------------------------------------------------->
 - (Misc) <https://www.sbprojects.net/knowledge/ir/index.php>
-  - Use header buttons to navigate to other pages (individual protocols, etc).
+  - ⚠️ Use header buttons to navigate to other pages (individual protocols, etc).
 - (Sony) <https://www.righto.com/2010/03/understanding-sony-ir-remote-codes-lirc.html>
 
 # Control codes
