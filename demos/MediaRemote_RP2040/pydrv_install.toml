@@ -1,0 +1,19 @@
+[modules.CPYBUNDLE]
+dest = "$BOARDROOT/lib"
+folders = [
+"$LIBPATH_CPYBUNDLE/adafruit_hid",
+]
+
+[modules]
+dest = "$BOARDROOT/lib"
+folders = [
+"$PROJROOT/lib_cktpy/CelIRcom",
+"$PROJROOT/lib_cktpy/EasyCktIO",
+]
+
+[package]
+dest = "$BOARDROOT"
+files = [
+"$THISPKG/Opt_MouseClick.py",
+"$THISPKG/main.py",
+]

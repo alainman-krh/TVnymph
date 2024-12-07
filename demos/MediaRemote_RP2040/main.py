@@ -14,21 +14,40 @@ import board
 #https://docs.circuitpython.org/projects/hid/en/latest/api.html#adafruit_hid.consumer_control_code.ConsumerControlCode
 
 
-#=Option slect
+#=Option select
 #===============================================================================
 SEND_CONSUMERCONTROL_ONLY = False #Support basic media keys only (remote will not "type text")
 #==> (Not likely to want "extras" to be sent to your PC (numeric values + arrows))
 SEND_SKIP_IF_FFREW_ONLY = True #Send "skip" keys on remotes that only support FF/RW (no proper skip buttons)
 SEND_NUMPAD = True #Send numpad keys vs standard numbers/enter key (SEND_CONSUMERCONTROL_ONLY must =False)
+USEOPT_MOUSECLICK = True #Use optional mouse click
+
+if USEOPT_MOUSECLICK:
+	from Opt_MouseClick import handle_mouseclick
+	print("Mouse click option enabled")
 
 
-#=Platform/build-dependent config (Raspberry Pi Pico RP2040)
+#=Platform/build-dependent config
 #===============================================================================
-rx_pin = board.GP28
-#rx_pin = board.D9 #Variant: KB2040 "Kee Boar"-based
+#Choose pin used for receiving IR signals (depends on platform/variant):
+if board.board_id in ("raspberry_pi_pico", "raspberry_pi_pico2"):
+    rx_pin = board.GP28 #Default to use (for standard RP2040-Pico board)
+    #rx_pin = board.GP3 #Variant: RP2040-Pico with custom protoboard
+    #rx_pin = board.GP4 #Variant: RP2040-Pico on PiCowbell STEMMA-QT port (Signal: SDA)
+elif "adafruit_kb2040" == board.board_id:
+    rx_pin = board.D9 #KB2040 "Kee Boar" variant/build using pin on opposite end from USB
+elif "adafruit_qt2040_trinkey" == board.board_id:
+    rx_pin = board.SDA #Only the STEMMA-QT port is available.
+elif "circuitplayground_express" == board.board_id:
+    #Doesn't work: Runs out of memory
+    rx_pin = board.REMOTEIN #Adafruit Circuit Playground Express (built-in IR receiver)
+elif "circuitplayground_bluefruit" == board.board_id:
+    rx_pin = board.SDA #Adafruit Circuit Playground Bluefruit
+else: #No specific variant/build defined. Default to using SDA port
+    rx_pin = board.SDA #Typically on the BUILT-IN STEMMA-QT port (for Adafruit boards)
 
 
-#=Base keymap
+#=Base keymap (Maps the function of a button to corresponding keyboard keys)
 #===============================================================================
 KEYMAP = {
     "PLAY": KeysCC(CCC.PLAY_PAUSE)        , "PAUSE": KeysCC(CCC.PLAY_PAUSE),
@@ -68,9 +87,8 @@ KEYMAP["<<-only"] = KEYMAP[SKIPCHAR+"<<"]
 KEYMAP[">>-only"] = KEYMAP[">>"+SKIPCHAR]
 
 
-#=Main config
+#=Signal map: Maps IR remote signals to the function associated with the button
 #===============================================================================
-rx = IRRx(rx_pin)
 SIGNAL_MAP_ADAFRUIT_389_CCC = { #Mapping for Adafruit 389 Mini Remote Control
     0xFF629D: "PLAY", 0xFFC23D: "STOP",
     0xFFA25D: "VOL-", 0xFFE21D: "VOL+",
@@ -102,6 +120,9 @@ SIGNAL_MAP_LG_EXTRAS = { #Mapping for some LG IR remote (NEC protocol)
     0x20DFE01F: "NAV_LEFT", 0x20DF609F: "NAV_RIGHT",
     0x20DF14EB: "BACK", 0x20DFDA25: "EXIT",
 }
+SIGNAL_MAP_SAMSUNG_EXAMPLE = { #Mapping for some Samsung IR remote
+    0xE0E0D02F: "VOL-", 0xE0E0E01F: "VOL+",
+}
 
 #Respond to both remotes (NOTE: cannot have overlapping codes)
 SIGNAL_MAP = {}
@@ -110,6 +131,7 @@ SIGNAL_MAP.update(SIGNAL_MAP_LG_CCC)
 if not SEND_CONSUMERCONTROL_ONLY:
     SIGNAL_MAP.update(SIGNAL_MAP_ADAFRUIT_389_EXTRAS)
     SIGNAL_MAP.update(SIGNAL_MAP_LG_EXTRAS)
+SIGNAL_MAP.update(SIGNAL_MAP_SAMSUNG_EXAMPLE) #Example/test only (only 2 extra signals - leave in)
 
 
 #=Event handlers
@@ -119,6 +141,12 @@ class IRDetect(EasyRx):
         sig = SIGNAL_MAP.get(msg.bits, None)
         IRcodestr = msg.str_hex()
         if sig is None:
+            if USEOPT_MOUSECLICK:
+                handled = handle_mouseclick(msg)
+                if handled:
+                    sig = "Mouse click"
+                    print(f"New message: {IRcodestr} ({sig})")
+                    return #Special button handled. Don't continue
             print("Unknown message:", IRcodestr)
             return
         print(f"New message: {IRcodestr} ({sig})")
@@ -135,13 +163,16 @@ class IRDetect(EasyRx):
         key = KEYMAP[sig] #A key that can be sent out through USB-HID interface
         key.release()
 
+rx = IRRx(rx_pin)
 irdetect = IRDetect(rx, PDE.DecoderNEC(), PDE.DecoderNECRPT(), msgRPT=PDE.IRMSG32_NECRPT)
+#Use this one instead for Samsung remotes:
+#irdetect = IRDetect(rx, PDE.DecoderSamsung()) #This remote doesn't have a special "repeat" command
 
 
 #=Main loop
 #===============================================================================
 print("HELLO24") #DEBUG: Change me to ensure uploaded version matches.
-print("MediaRemote: ready to receive!")
+print(f"MediaRemote: ready to receive on pin '{rx_pin}'!")
 while True:
     irdetect.process_events()
 #end program

@@ -1,0 +1,10 @@
+import storage
+storage.disable_usb_drive()
+
+#To disable microcontroller mounting as a usb drive:
+#   Rename => boot.py on microcontroller drive itself (and reset it).
+#To acces drive again: Use serial monitor to rename file with CircuitPython REPL:
+r"""
+import os
+os.rename("boot.py", "boot.py_ignorefornow")
+"""
